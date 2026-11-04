@@ -7,7 +7,7 @@ setup:
 format:
 	$(GOOSE) format toml_edit.goose tests examples bench
 check:
-	python3 -m unittest discover -s tests -p test_vendor.py
+	python3 -m unittest discover -s tests -p 'test_*.py'
 	python3 scripts/check-vendor.py
 	$(GOOSE) format --check toml_edit.goose tests examples bench
 	$(GOOSE) check tests/overloads.goose
