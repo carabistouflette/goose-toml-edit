@@ -61,7 +61,7 @@ rules before returning output. There are no runtime native dependencies.
 Run `make setup` for the pinned compiler, then `make format check test property`.
 `make sanitize SANITIZER_CC=gcc` and `SANITIZER_CC=clang` instrument generated C,
 including the Goose runtime; test integration and source checks also run in CI.
-There are no releases or stability promises yet.
+Experimental releases carry no API stability promise.
 
 Consumer convenience overloads of global `str`/`copy` must not change editor
 validation or returned ownership. The canonical engine constructs owned results;
