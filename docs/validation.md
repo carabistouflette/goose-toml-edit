@@ -60,14 +60,23 @@ Full-call benchmark samples and compiler/platform/binary/source provenance are
 in [the benchmark record](../bench/results/2026-11-04/README.md). No timing gate,
 competing-library ranking or universal throughput claim is made.
 
-## Consumer-overload hardening follow-up (release gated)
+## Consumer-overload hardening follow-up
 
-The immutable parser/ownership fix approved by the TOML primary is
-`c32c7dab44883f8fb5a5a984bf6f3c4c49119d79`. This follow-up tests that exact
-snapshot on a feature branch. It is not approval of a whole-library alpha,
-the outstanding numeric-writer changes, or a new Honk pin. Honk's merge remains
-held until the primary delivers its final approved post-release/source-merge SHA.
-The editor's parser and quoted-key helper coupling is specific to a reviewed pin.
+The hardening was first validated against the primary's approved parser/ownership
+fix `c32c7dab44883f8fb5a5a984bf6f3c4c49119d79`, while its separate numeric-writer
+and source-module gates were held. The approved final dependency is now the
+immutable source-merge commit `c1c703f8dd4ac4e0ebc95f35981e87becad76957`.
+The primary explicitly cleared the earlier alpha-ordering hold for this handoff;
+no alpha release is claimed or required for this pin.
+
+Published merge and tested head `cfeef473ab8886832f9d41f6e122a3c85bae4e37`
+share tree `5afd3559c04d65aa4bc29468db4d0d7398be7fa2`. Exact-head root/source
+checks passed on x86 and ARM64 in runs41879137478,41879128955,41879137484 and
+41879128925. Post-merge duplicate runs are not used as terminal evidence here.
+The parser/document/text sources, writer context, bounded writes and quoted-key
+encoder match the approved compatibility baseline. Only required dependency
+files are vendored; upstream's separate source module is not used by this API.
+Private helpers remain pin-specific, not a stable public extension API.
 
 With that parser fix present, a public consumer defining a builder `copy`
 overload still caused the original editor to return an empty successful edit.
@@ -80,7 +89,8 @@ formatting and index-sizing overloads. It checks exact source/output preservatio
 malformed source and fragment rejection, error positions, UTF-8 and size bounds,
 unsupported paths, aliasing, independent ownership and rehashing. It is wired
 into interpreted, optimized, debug/no-BCE and generated-C sanitizer targets.
-Final release measurements and dependency promotion wait for the approved pin.
+Initial benchmark records retain their measured historical revisions; no speedup
+is claimed for this correctness hardening.
 
 Scoped follow-up evidence: `make format check test property` passed; overload
 regressions passed interpreted, optimized and debug/no-BCE execution. Full GCC
@@ -89,5 +99,5 @@ and Clang ASan/UBSan targets passed, including overload/boundary/smoke tests and
 reviewers found no remaining blocker in this scoped change, verified all vendor
 bytes against the exact approved parser commit, and independently reran the
 consumer regressions. One reviewer also repeated3,032 scanner/parser parity
-cases successfully. This evidence does not clear the outstanding upstream
-writer/alpha/source merge or Honk release gates.
+cases successfully. The subsequent immutable upstream handoff clears its dependency gate; Honk
+still receives separate combined consumer validation before merge.
