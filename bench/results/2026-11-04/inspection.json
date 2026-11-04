@@ -1,0 +1,113 @@
+{
+  "source": "b3dbe68b34a7f370e2708d38f4740f352b85d633",
+  "source_dirty": true,
+  "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "goose_version": "goose eadca40 (runtime 3025e5810379)",
+  "goose_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+  "binary_sha256": "12c42f43cb262e8036008fa95d0c3de7a28fb71ac0d8690addcba10b214a8419",
+  "harness_sha256": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+  "editor_sha256": "8b1a5bb95894b6d741e95a7f39cf10942070d5c89a06ade18541775030b2af3d",
+  "toolchain": {
+    "cc": {
+      "name": "gcc",
+      "style": "cc",
+      "path": "/usr/bin/cc",
+      "cxx": "/usr/bin/g++",
+      "version": "20260810",
+      "desc": "gcc 20260810",
+      "id": "gcc-20260810-a920ca84",
+      "how": "on PATH"
+    },
+    "cmake": {
+      "path": "/usr/bin/cmake",
+      "version": "4.4.5"
+    },
+    "git": {
+      "path": "/usr/bin/git",
+      "version": "2.56.0"
+    },
+    "builtin": [],
+    "home": "/home/arobin/.goose"
+  },
+  "platform": "Linux-7.2.11-arch1-1-x86_64-with-glibc2.44",
+  "machine": "x86_64",
+  "cpu_affinity": 0,
+  "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+  "build": "goose build bench/edit.goose -O2 (generated C, selected toolchain)",
+  "iterations": 30,
+  "runs": 7,
+  "seed": 20261104,
+  "units": "ns per public call",
+  "samples": {
+    "set": [
+      3626.3,
+      8596.433333333332,
+      3462.633333333333,
+      3400.266666666667,
+      3494.1666666666665,
+      3730.4666666666667,
+      3836.1666666666665
+    ],
+    "insert": [
+      3891.1,
+      7393.166666666667,
+      3887.4,
+      4358.133333333333,
+      3404.766666666667,
+      8017.1,
+      3984.366666666667
+    ],
+    "remove": [
+      2801.0333333333333,
+      2901.4,
+      2778.133333333333,
+      3288.3333333333335,
+      2918.266666666667,
+      3065.4,
+      3070.733333333333
+    ],
+    "wide": [
+      4949939.366666666,
+      4963797.433333334,
+      5019320.066666666,
+      4872786.033333333,
+      4839591.733333333,
+      4833322.466666667,
+      4718089.166666667
+    ],
+    "deep": [
+      13969.766666666666,
+      17775.3,
+      17978.366666666665,
+      23755.866666666665,
+      19292.066666666666,
+      17289.1,
+      17766.766666666666
+    ],
+    "comments": [
+      3329592.933333333,
+      3244584.433333333,
+      3259943.9,
+      3243331.966666667,
+      3186175.566666667,
+      3211997.7333333334,
+      3200184.3
+    ]
+  },
+  "medians": {
+    "set": 3626.3,
+    "insert": 3984.366666666667,
+    "remove": 2918.266666666667,
+    "wide": 4872786.033333333,
+    "deep": 17775.3,
+    "comments": 3243331.966666667
+  },
+  "checksums_per_call": {
+    "set": 129,
+    "insert": 158,
+    "remove": 103,
+    "wide": 217895,
+    "deep": 251,
+    "comments": 1000158
+  }
+}
