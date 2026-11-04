@@ -9,6 +9,7 @@ format:
 check:
 	python3 scripts/check-vendor.py
 	$(GOOSE) format --check toml_edit.goose tests examples bench
+	$(GOOSE) check tests/overloads.goose
 	$(GOOSE) check tests/boundaries.goose
 	$(GOOSE) check tests/editor.goose
 	$(GOOSE) check tests/driver.goose
@@ -17,6 +18,11 @@ check:
 	git diff --check
 test:
 	mkdir -p .build
+	$(GOOSE) run tests/overloads.goose
+	$(GOOSE) build tests/overloads.goose -O2 -o .build/overloads
+	./.build/overloads
+	$(GOOSE) build tests/overloads.goose --debug --no-bce -o .build/overloads-debug
+	./.build/overloads-debug
 	$(GOOSE) run tests/boundaries.goose
 	$(GOOSE) build tests/boundaries.goose -O2 -o .build/boundaries
 	./.build/boundaries
@@ -31,6 +37,9 @@ property:
 	python3 scripts/property-test.py --runner .build/driver
 sanitize:
 	mkdir -p .build
+	$(GOOSE) tests/overloads.goose --standalone --debug --no-bce -o .build/overloads-sanitized.c
+	$(SANITIZER_CC) -O1 -g -fno-pie -no-pie -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer .build/overloads-sanitized.c -lm -ldl -lpthread -o .build/overloads-sanitized-$(SANITIZER_CC)
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./.build/overloads-sanitized-$(SANITIZER_CC)
 	$(GOOSE) tests/boundaries.goose --standalone --debug --no-bce -o .build/boundaries-sanitized.c
 	$(SANITIZER_CC) -O1 -g -fno-pie -no-pie -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer .build/boundaries-sanitized.c -lm -ldl -lpthread -o .build/boundaries-sanitized-$(SANITIZER_CC)
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./.build/boundaries-sanitized-$(SANITIZER_CC)
