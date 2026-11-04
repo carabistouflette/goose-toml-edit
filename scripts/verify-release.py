@@ -97,6 +97,7 @@ def read_archive(raw, expected):
             require(parts[0] == prefix, 'multiple archive roots')
             require(member.type in (tarfile.REGTYPE, tarfile.AREGTYPE, tarfile.DIRTYPE) and
                     member.sparse is None, 'links/special/sparse archive entries forbidden')
+            require(0 <= member.mode <= 0o777, 'privileged/non-POSIX archive mode forbidden')
             if len(parts) == 1:
                 require(member.isdir(), 'archive must have a root directory')
                 continue
@@ -133,6 +134,7 @@ def vendor_graph(files):
         directories.add(directory)
         full_sha(library['revision'])
         require(isinstance(library['license'], str) and library['license'] and
+                isinstance(library['repository'], str) and library['repository'] and
                 isinstance(library['files'], dict) and 'LICENSE' in library['files'],
                 'vendor license record/file required')
         for name, digest in library['files'].items():
@@ -145,7 +147,9 @@ def vendor_graph(files):
         require(bool(files['vendor/' + directory + '/LICENSE']), 'empty vendor license')
     actual = {path for path in files if path.startswith('vendor/') and path != 'vendor/manifest.json'}
     require(actual == graph.keys(), 'unlisted vendored files')
-    return compiler, graph
+    identities = [{key: library[key] for key in ('directory', 'repository', 'revision', 'license')}
+                  for library in manifest['libraries']]
+    return compiler, graph, identities
 
 
 def verify(root, tag, commit, tested, metadata, raw, prerelease=True):
@@ -166,10 +170,11 @@ def verify(root, tag, commit, tested, metadata, raw, prerelease=True):
     tree = commit_tree(root, commit)
     require(tree == commit_tree(root, tested), 'release tree differs from tested head')
     files = read_archive(raw, git_files(root, commit))
-    compiler, graph = vendor_graph(files)
+    compiler, graph, identities = vendor_graph(files)
     return {'tag': tag, 'commit': commit, 'tested_head': tested, 'tree': tree,
             'prerelease': prerelease, 'files': len(files), 'compiler_revision': compiler,
             'archive_sha256': hashlib.sha256(raw).hexdigest(), 'vendor_sha256': graph,
+            'vendor_libraries': identities,
             'result': 'pass'}
 
 
@@ -180,7 +185,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def fetch(url, limit):
     request = urllib.request.Request(url, headers={'User-Agent': 'goose-toml-edit-release-verifier'})
-    with urllib.request.build_opener(NoRedirect).open(request, timeout=30) as response:
+    with urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect).open(request, timeout=30) as response:
         raw = response.read(limit + 1)
     require(len(raw) <= limit, 'download exceeds limit')
     return raw

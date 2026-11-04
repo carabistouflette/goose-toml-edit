@@ -6,12 +6,15 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 import tarfile
 import tempfile
 import unittest
+import urllib.request
+import urllib.response
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'scripts/verify-release.py'
@@ -34,6 +37,7 @@ class ReleaseVerification(unittest.TestCase):
                       'toml_edit.goose': b'fixture source', 'vendor/lib/LICENSE': b'vendor license',
                       'vendor/lib/lib.goose': b'vendor source'}
         manifest = {'schema': 1, 'libraries': [{'directory': 'lib', 'revision': 'b' * 40,
+                    'repository': 'https://github.com/example/lib',
                     'license': 'Apache-2.0', 'files': {name: hashlib.sha256(self.files['vendor/lib/' + name]).hexdigest()
                     for name in ('LICENSE', 'lib.goose')}}]}
         self.files['vendor/manifest.json'] = json.dumps(manifest).encode()
@@ -114,6 +118,28 @@ class ReleaseVerification(unittest.TestCase):
                 self.verify(self.archive(files))
         with self.assertRaisesRegex(ValueError, 'executable mode'):
             self.verify(self.archive(modes={'toml_edit.goose': 0o755}))
+        for mode in (0o4644, 0o2644, 0o1644):
+            with self.subTest(mode=mode), self.assertRaisesRegex(ValueError, 'archive mode'):
+                self.verify(self.archive(modes={'LICENSE': mode}))
+        directory = tarfile.TarInfo('fixture/vendor'); directory.type = tarfile.DIRTYPE
+        directory.mode = 0o1777
+        with self.assertRaisesRegex(ValueError, 'archive mode'):
+            self.verify(self.archive(extras=[(directory, b'')]))
+
+    def test_positive_stable_nested_and_executable_release(self):
+        self.run_git('update-index', '--chmod=+x', 'toml_edit.goose')
+        self.run_git('commit', '-q', '-m', 'executable fixture')
+        commit = self.run_git('rev-parse', 'HEAD').decode().strip()
+        metadata = copy.deepcopy(self.metadata); metadata['release']['prerelease'] = False
+        metadata['tag_ref']['object']['sha'] = commit
+        raw = self.archive(modes={'toml_edit.goose': 0o755})
+        report = verifier.verify(self.root, 'v0.1.0', commit, commit, metadata, raw, prerelease=False)
+        self.assertFalse(report['prerelease'])
+        files = dict(self.files); files['vendor/lib/nested/source.goose'] = b'nested'
+        manifest = json.loads(files['vendor/manifest.json'])
+        manifest['libraries'][0]['files']['nested/source.goose'] = hashlib.sha256(b'nested').hexdigest()
+        files['vendor/manifest.json'] = json.dumps(manifest).encode()
+        self.assertIn('vendor/lib/nested/source.goose', verifier.vendor_graph(files)[1])
 
     def test_paths_duplicates_links_sparse_and_mixed_roots(self):
         for name in ('fixture/../escape', '/absolute', 'fixture/./LICENSE',
@@ -182,6 +208,31 @@ class ReleaseVerification(unittest.TestCase):
         self.assertEqual(bad.returncode, 1, bad.stderr)
         self.assertEqual(bad.stdout, b'')
         self.assertIn(b'release verification failed', bad.stderr)
+        incomplete = subprocess.run(command[:-2], capture_output=True, timeout=30)
+        self.assertEqual(incomplete.returncode, 2)
+        self.assertIn(b'must be supplied together', incomplete.stderr)
+        metadata.write_bytes(b' ' * (verifier.MAX_METADATA + 1))
+        oversized = subprocess.run(command, capture_output=True, timeout=30)
+        self.assertEqual(oversized.returncode, 1)
+        self.assertIn(b'input file exceeds limit', oversized.stderr)
+
+    def test_fetch_ignores_credential_proxy_and_bounds_response(self):
+        requests = []
+        class OfflineHTTPS(urllib.request.HTTPSHandler):
+            def https_open(self, request):
+                requests.append(request)
+                response = urllib.response.addinfourl(io.BytesIO(b'ok'), {}, request.full_url, 200)
+                response.msg = 'OK'
+                return response
+        with patch.dict(os.environ, {'https_proxy': 'http://user:secret@proxy.invalid:8080',
+                                     'HTTPS_PROXY': 'http://user:secret@proxy.invalid:8080'}), \
+                patch.object(urllib.request, 'HTTPSHandler', OfflineHTTPS):
+            self.assertEqual(verifier.fetch('https://fixture.invalid/data', 2), b'ok')
+            self.assertFalse(requests[-1].has_proxy())
+            self.assertEqual(requests[-1].host, 'fixture.invalid')
+            self.assertIsNone(requests[-1].get_header('Proxy-authorization'))
+            with self.assertRaisesRegex(ValueError, 'download exceeds limit'):
+                verifier.fetch('https://fixture.invalid/data', 1)
 
 
 if __name__ == '__main__':
