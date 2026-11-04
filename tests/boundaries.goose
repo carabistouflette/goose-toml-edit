@@ -18,6 +18,26 @@ fn main() {
     }
     var out: u8[>..] = [];
     let empty_path: const u8[:][] = []; reject("x=1", empty_path, "2");
+    assert(toml_edit::remove("\xff", empty_path, out) == "toml-edit: path needs 1..64 decoded components");
+    assert(out.len == 0);
+    var huge_key: u8[>..] = [];
+    for _ in (toml_edit::MAX_INPUT_BYTES - 2) / 6 { huge_key.push('a'); }
+    let reserved_key: const u8[:] = huge_key;
+    assert(toml_edit::set("", [reserved_key], "1", out).len == 0);
+    assert(out.len == huge_key.len + 7);
+    huge_key.push('a');
+    let excessive_key: const u8[:] = huge_key;
+    assert(toml_edit::set("", [excessive_key], "1", out) == "toml-edit: rendered path exceeds 1 MiB");
+    assert(out.len == 0);
+    // Decoded path capacity is independent of encoded insertion capacity.
+    huge_key.clear();
+    for _ in toml_edit::MAX_INPUT_BYTES { huge_key.push('a'); }
+    let capped_key: const u8[:] = huge_key;
+    assert(toml_edit::remove("x=1", [capped_key], out).len == 0 && out == "x=1");
+    huge_key.push('a');
+    let oversized_key: const u8[:] = huge_key;
+    assert(toml_edit::remove("x=1", [oversized_key], out) == "toml-edit: invalid or oversized key path");
+    assert(out.len == 0);
     var path: const u8[:][>..] = []; for i in 65 { path.push("x"); } reject("", path, "1");
     var limit = str("#"); for i in toml_edit::MAX_INPUT_BYTES - 1 { limit.push(' '); }
     assert(toml_edit::remove(limit, ["missing"], out).len == 0 && out == limit);

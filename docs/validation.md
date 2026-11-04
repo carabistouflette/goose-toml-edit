@@ -1,5 +1,47 @@
 # Validation and limits
 
+## Canonical engine adapter
+
+The companion delegates to supported `toml_source::legacy_set` and
+`legacy_remove` in immutable canonical pin
+`de7dfe092f6d72811417355044e5d024d5600613` (upstream `v0.1.0-alpha.2`).
+The adapter waits for the complete owned `(output, error)` pair, then clears and
+appends into the caller's output. It contains no scanner, lookup, key encoder,
+fragment parser or fallback engine. Existing public signatures, constants,
+diagnostic bytes, precedence and aliasing remain the compatibility contract.
+
+The canonical editor blob is identical to reviewed engine checkpoint
+`04c8befbb353da3e90ecaacf20a5977b85d7fe00`; all parser/document/writer/text bytes
+are unchanged from the previous companion pin. The vendor manifest records the
+new full revision and exact source/license hashes, including the canonical
+editor and its upstream README.
+
+The unchanged 21-case legacy artifact is checked by SHA-256 before each property
+campaign. It was captured from clean companion `cedb2c3`, before canonical profile
+implementation. Exact errors and outputs come from that baseline, never from
+candidate output. Both the original checkpoint and final engine passed full
+status/output/error differential checks; retained provenance and results are in
+[the final engine record](results/canonical-04c8bef-parity.json). Direct Goose
+tests additionally exercise source/value/path aliases with output, returned error
+ownership, NUL keys, empty paths, exact decoded-path limits and conservative
+sixfold key-rendering limits.
+
+The actual adapter passes a direct 5,134-call comparison against the preserved
+legacy binary, including exact output and error bytes. Standard checks pass 494
+property calls plus direct JIT/O2/debug alias/overload/boundary tests. GCC and
+Clang ASan/UBSan each pass the direct suites plus 234 property calls. A clean Git
+export passes checks/tests/property without sibling dependencies. Two independent
+wrapper/vendor/harness reviews found no remaining blockers; every vendored byte
+was compared against the public immutable Git objects. Full provenance is in
+[the adapter validation record](results/adapter-de7dfe0-validation.json).
+
+[Paired full-call timing records](../bench/results/canonical-adapter/README.md)
+retain both the initial short-loop series and its longer-loop confirmation.
+They expose shared-host/run sensitivity and a comment-heavy slowdown in both
+series. These measurements support no universal speedup claim.
+
+## Original implementation validation
+
 Validated with the exact upstream Goose compiler in GOOSE_REVISION. The vendor
 manifest records an unmodified goose-toml snapshot and its nested sources and
 licenses. `scripts/check-vendor.py` checks every recorded source/license hash.
@@ -64,7 +106,7 @@ competing-library ranking or universal throughput claim is made.
 
 The hardening was first validated against the primary's approved parser/ownership
 fix `c32c7dab44883f8fb5a5a984bf6f3c4c49119d79`, while its separate numeric-writer
-and source-module gates were held. The approved final dependency is now the
+and source-module gates were held. The dependency approved for that hardening was the
 immutable source-merge commit `c1c703f8dd4ac4e0ebc95f35981e87becad76957`.
 The primary explicitly cleared the earlier alpha-ordering hold for this handoff;
 no alpha release is claimed or required for this pin.
@@ -74,15 +116,17 @@ share tree `5afd3559c04d65aa4bc29468db4d0d7398be7fa2`. Exact-head root/source
 checks passed on x86 and ARM64 in runs41879137478,41879128955,41879137484 and
 41879128925. Post-merge duplicate runs are not used as terminal evidence here.
 The parser/document/text sources, writer context, bounded writes and quoted-key
-encoder match the approved compatibility baseline. Only required dependency
-files are vendored; upstream's separate source module is not used by this API.
-Private helpers remain pin-specific, not a stable public extension API.
+encoder match the approved compatibility baseline. That implementation used
+private parser helpers. The canonical adapter above supersedes that private
+seam; its engine remains tied to the immutable parser snapshot.
 
 With that parser fix present, a public consumer defining a builder `copy`
 overload still caused the original editor to return an empty successful edit.
 The dedicated regression failed its exact-output assertion before the editor
-fix. All editor-owned diagnostics, error/output copies and replacement wrapper
-construction now use built-in byte appends through `toml_edit::owned`.
+fix. That implementation changed all editor-owned diagnostics, error/output
+copies and replacement wrapper construction to built-in byte appends through
+`toml_edit::owned`. The canonical adapter subsequently removed that helper along
+with the duplicated engine.
 
 The regression root defines string, copying, numeric conversion, integer
 formatting and index-sizing overloads. It checks exact source/output preservation,

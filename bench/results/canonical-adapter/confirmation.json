@@ -1,0 +1,1030 @@
+{
+  "baseline_revision": "cedb2c3c98affbeb45bd34bc7a6618f5a9b75ad0",
+  "candidate_revision": "363a330a03d8706c19629350b7cf316295cf4a9f",
+  "candidate_dirty": false,
+  "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "compiler_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+  "toolchain": {
+    "cc": {
+      "name": "gcc",
+      "style": "cc",
+      "path": "/usr/bin/cc",
+      "cxx": "/usr/bin/g++",
+      "version": "20260810",
+      "desc": "gcc 20260810",
+      "id": "gcc-20260810-a920ca84",
+      "how": "on PATH"
+    },
+    "cmake": {
+      "path": "/usr/bin/cmake",
+      "version": "4.4.5"
+    },
+    "git": {
+      "path": "/usr/bin/git",
+      "version": "2.56.0"
+    },
+    "builtin": [],
+    "home": "/home/arobin/.goose"
+  },
+  "build": "Both runners freshly built by this script with goose build --cc cc -O2",
+  "builds": {
+    "baseline": {
+      "command": [
+        "/tmp/goose-http-standalone-kn_xeeq3/.toolchain/goose/build/goose",
+        "build",
+        "bench/edit.goose",
+        "--cc",
+        "cc",
+        "-O2",
+        "-o",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-toml-edit/.build/bench-legacy"
+      ],
+      "source_sha256": {
+        "toml_edit.goose": "1c91847f3e2543f4b8b928f53ca4f1c8ab2a40e5cdad431fe1f42d0d2cd4362d",
+        "bench/edit.goose": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+        "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+        "vendor/manifest.json": "49ab6337595574a4fc3ed98a2302df0e7b75ae50e012cfad4529ba867652440e",
+        "vendor/goose-toml/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "vendor/goose-toml/document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+        "vendor/goose-toml/toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+        "vendor/goose-toml/vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "vendor/goose-toml/vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+        "vendor/goose-toml/vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+        "vendor/goose-toml/writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+      },
+      "compiler_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+      "binary_sha256": "239dbc4c96363e0d4e107b3ab18173ac5f8b7247b7e9217acaac08c995cca223"
+    },
+    "candidate": {
+      "command": [
+        "/tmp/goose-http-standalone-kn_xeeq3/.toolchain/goose/build/goose",
+        "build",
+        "bench/edit.goose",
+        "--cc",
+        "cc",
+        "-O2",
+        "-o",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-toml-edit/.build/bench-adapter"
+      ],
+      "source_sha256": {
+        "toml_edit.goose": "4516ff7e266f4fa5e6d0c4ee3db0bd3089b8c9be4cfdc932d2d6c3385bf04791",
+        "bench/edit.goose": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+        "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+        "vendor/manifest.json": "289fac429db541e3ff688d82c86dacfea55864f8d3eee78110c5c43db344b1f6",
+        "vendor/goose-toml/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "vendor/goose-toml/document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+        "vendor/goose-toml/source/README.md": "16a6f2f1ea2aad78c6bcaa89b561e13b31b62fe6896cf57dc44718e263acbb77",
+        "vendor/goose-toml/source/editor.goose": "7664b58ea6901c422a95d676ecc7c4bc50613754db5d76580b37bd6a13f791a9",
+        "vendor/goose-toml/toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+        "vendor/goose-toml/vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "vendor/goose-toml/vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+        "vendor/goose-toml/vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+        "vendor/goose-toml/writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+      },
+      "compiler_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+      "binary_sha256": "22ff6485b5edf9123a86038b43a8dbd9cb919b3337b58627e9b5816173ddcfdd"
+    }
+  },
+  "cc_version": "cc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "platform": "Linux-7.2.11-arch1-1-x86_64-with-glibc2.44",
+  "cpu_affinity": 4,
+  "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+  "rounds": 9,
+  "iterations_per_case": {
+    "set": 1000,
+    "insert": 1000,
+    "remove": 1000,
+    "wide": 30,
+    "deep": 1000,
+    "comments": 30
+  },
+  "seed": 20261104,
+  "limitations": "Shared host, no exclusive CPU claim. Fixture construction/process startup excluded by runner clock; parsing, validation, allocation and output copying included. Alternating paired order and shuffled cases reduce order bias; finite workload evidence only.",
+  "source_sha256": {
+    "baseline": {
+      "toml_edit.goose": "1c91847f3e2543f4b8b928f53ca4f1c8ab2a40e5cdad431fe1f42d0d2cd4362d",
+      "bench/edit.goose": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+      "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+      "vendor/manifest.json": "49ab6337595574a4fc3ed98a2302df0e7b75ae50e012cfad4529ba867652440e",
+      "vendor/goose-toml/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "vendor/goose-toml/document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+      "vendor/goose-toml/toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+      "vendor/goose-toml/vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "vendor/goose-toml/vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+      "vendor/goose-toml/vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+      "vendor/goose-toml/writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+    },
+    "candidate": {
+      "toml_edit.goose": "4516ff7e266f4fa5e6d0c4ee3db0bd3089b8c9be4cfdc932d2d6c3385bf04791",
+      "bench/edit.goose": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+      "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+      "vendor/manifest.json": "289fac429db541e3ff688d82c86dacfea55864f8d3eee78110c5c43db344b1f6",
+      "vendor/goose-toml/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "vendor/goose-toml/document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+      "vendor/goose-toml/source/README.md": "16a6f2f1ea2aad78c6bcaa89b561e13b31b62fe6896cf57dc44718e263acbb77",
+      "vendor/goose-toml/source/editor.goose": "7664b58ea6901c422a95d676ecc7c4bc50613754db5d76580b37bd6a13f791a9",
+      "vendor/goose-toml/toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+      "vendor/goose-toml/vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "vendor/goose-toml/vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+      "vendor/goose-toml/vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+      "vendor/goose-toml/writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+    }
+  },
+  "binary_sha256": {
+    "baseline": "239dbc4c96363e0d4e107b3ab18173ac5f8b7247b7e9217acaac08c995cca223",
+    "candidate": "22ff6485b5edf9123a86038b43a8dbd9cb919b3337b58627e9b5816173ddcfdd"
+  },
+  "reproducer_sha256": "31bd20804d63e70960546e23ee7925b76fed7e9f5b05766ba30ed15007b08ce2",
+  "checksums_per_call": {
+    "set": 129,
+    "insert": 158,
+    "remove": 103,
+    "wide": 217895,
+    "deep": 251,
+    "comments": 1000158
+  },
+  "samples": [
+    {
+      "round": 0,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 2352012,
+      "checksum": 129000
+    },
+    {
+      "round": 0,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 2159721,
+      "checksum": 129000
+    },
+    {
+      "round": 0,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 166515384,
+      "checksum": 6536850
+    },
+    {
+      "round": 0,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 164931252,
+      "checksum": 6536850
+    },
+    {
+      "round": 0,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 11364598,
+      "checksum": 251000
+    },
+    {
+      "round": 0,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 9892316,
+      "checksum": 251000
+    },
+    {
+      "round": 0,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1209974,
+      "checksum": 103000
+    },
+    {
+      "round": 0,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1203699,
+      "checksum": 103000
+    },
+    {
+      "round": 0,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1945584,
+      "checksum": 158000
+    },
+    {
+      "round": 0,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 2006264,
+      "checksum": 158000
+    },
+    {
+      "round": 0,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 120658534,
+      "checksum": 30004740
+    },
+    {
+      "round": 0,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 111570617,
+      "checksum": 30004740
+    },
+    {
+      "round": 1,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1274552,
+      "checksum": 103000
+    },
+    {
+      "round": 1,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1190644,
+      "checksum": 103000
+    },
+    {
+      "round": 1,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 110811444,
+      "checksum": 30004740
+    },
+    {
+      "round": 1,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 124662829,
+      "checksum": 30004740
+    },
+    {
+      "round": 1,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 207159210,
+      "checksum": 6536850
+    },
+    {
+      "round": 1,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 163163206,
+      "checksum": 6536850
+    },
+    {
+      "round": 1,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 2033849,
+      "checksum": 158000
+    },
+    {
+      "round": 1,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 2076228,
+      "checksum": 158000
+    },
+    {
+      "round": 1,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1702319,
+      "checksum": 129000
+    },
+    {
+      "round": 1,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1848342,
+      "checksum": 129000
+    },
+    {
+      "round": 1,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 12299167,
+      "checksum": 251000
+    },
+    {
+      "round": 1,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 10437368,
+      "checksum": 251000
+    },
+    {
+      "round": 2,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 152680697,
+      "checksum": 6536850
+    },
+    {
+      "round": 2,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 143350538,
+      "checksum": 6536850
+    },
+    {
+      "round": 2,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1220997,
+      "checksum": 103000
+    },
+    {
+      "round": 2,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1177241,
+      "checksum": 103000
+    },
+    {
+      "round": 2,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1906026,
+      "checksum": 158000
+    },
+    {
+      "round": 2,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1975471,
+      "checksum": 158000
+    },
+    {
+      "round": 2,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1609894,
+      "checksum": 129000
+    },
+    {
+      "round": 2,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1825460,
+      "checksum": 129000
+    },
+    {
+      "round": 2,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 10871522,
+      "checksum": 251000
+    },
+    {
+      "round": 2,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 10033791,
+      "checksum": 251000
+    },
+    {
+      "round": 2,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 122088903,
+      "checksum": 30004740
+    },
+    {
+      "round": 2,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 113779227,
+      "checksum": 30004740
+    },
+    {
+      "round": 3,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 120988985,
+      "checksum": 30004740
+    },
+    {
+      "round": 3,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 113028181,
+      "checksum": 30004740
+    },
+    {
+      "round": 3,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 11402814,
+      "checksum": 251000
+    },
+    {
+      "round": 3,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 10394057,
+      "checksum": 251000
+    },
+    {
+      "round": 3,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1264055,
+      "checksum": 103000
+    },
+    {
+      "round": 3,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1339517,
+      "checksum": 103000
+    },
+    {
+      "round": 3,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 2175533,
+      "checksum": 158000
+    },
+    {
+      "round": 3,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 2104089,
+      "checksum": 158000
+    },
+    {
+      "round": 3,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 151403205,
+      "checksum": 6536850
+    },
+    {
+      "round": 3,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 154422401,
+      "checksum": 6536850
+    },
+    {
+      "round": 3,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1683517,
+      "checksum": 129000
+    },
+    {
+      "round": 3,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1658942,
+      "checksum": 129000
+    },
+    {
+      "round": 4,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 172650023,
+      "checksum": 6536850
+    },
+    {
+      "round": 4,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 149212092,
+      "checksum": 6536850
+    },
+    {
+      "round": 4,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1015967,
+      "checksum": 103000
+    },
+    {
+      "round": 4,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1044281,
+      "checksum": 103000
+    },
+    {
+      "round": 4,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 9306451,
+      "checksum": 251000
+    },
+    {
+      "round": 4,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 8545422,
+      "checksum": 251000
+    },
+    {
+      "round": 4,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1653758,
+      "checksum": 129000
+    },
+    {
+      "round": 4,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1608503,
+      "checksum": 129000
+    },
+    {
+      "round": 4,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1768893,
+      "checksum": 158000
+    },
+    {
+      "round": 4,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 2020770,
+      "checksum": 158000
+    },
+    {
+      "round": 4,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 100046155,
+      "checksum": 30004740
+    },
+    {
+      "round": 4,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 91372029,
+      "checksum": 30004740
+    },
+    {
+      "round": 5,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 8806689,
+      "checksum": 251000
+    },
+    {
+      "round": 5,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 9798152,
+      "checksum": 251000
+    },
+    {
+      "round": 5,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 90477256,
+      "checksum": 30004740
+    },
+    {
+      "round": 5,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 102136383,
+      "checksum": 30004740
+    },
+    {
+      "round": 5,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 147808372,
+      "checksum": 6536850
+    },
+    {
+      "round": 5,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 113757795,
+      "checksum": 6536850
+    },
+    {
+      "round": 5,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1061140,
+      "checksum": 103000
+    },
+    {
+      "round": 5,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1059529,
+      "checksum": 103000
+    },
+    {
+      "round": 5,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1411367,
+      "checksum": 129000
+    },
+    {
+      "round": 5,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1606459,
+      "checksum": 129000
+    },
+    {
+      "round": 5,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1961160,
+      "checksum": 158000
+    },
+    {
+      "round": 5,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1913615,
+      "checksum": 158000
+    },
+    {
+      "round": 6,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1747219,
+      "checksum": 129000
+    },
+    {
+      "round": 6,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1743468,
+      "checksum": 129000
+    },
+    {
+      "round": 6,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1940146,
+      "checksum": 158000
+    },
+    {
+      "round": 6,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1794605,
+      "checksum": 158000
+    },
+    {
+      "round": 6,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1190286,
+      "checksum": 103000
+    },
+    {
+      "round": 6,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1477928,
+      "checksum": 103000
+    },
+    {
+      "round": 6,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 113337226,
+      "checksum": 30004740
+    },
+    {
+      "round": 6,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 80253425,
+      "checksum": 30004740
+    },
+    {
+      "round": 6,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 111863200,
+      "checksum": 6536850
+    },
+    {
+      "round": 6,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 135206658,
+      "checksum": 6536850
+    },
+    {
+      "round": 6,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 8936277,
+      "checksum": 251000
+    },
+    {
+      "round": 6,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 10366555,
+      "checksum": 251000
+    },
+    {
+      "round": 7,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 9723197,
+      "checksum": 251000
+    },
+    {
+      "round": 7,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 9803218,
+      "checksum": 251000
+    },
+    {
+      "round": 7,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1429989,
+      "checksum": 129000
+    },
+    {
+      "round": 7,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1511546,
+      "checksum": 129000
+    },
+    {
+      "round": 7,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 87525928,
+      "checksum": 30004740
+    },
+    {
+      "round": 7,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 76058472,
+      "checksum": 30004740
+    },
+    {
+      "round": 7,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 121091307,
+      "checksum": 6536850
+    },
+    {
+      "round": 7,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 113977577,
+      "checksum": 6536850
+    },
+    {
+      "round": 7,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1419211,
+      "checksum": 158000
+    },
+    {
+      "round": 7,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1366137,
+      "checksum": 158000
+    },
+    {
+      "round": 7,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 962696,
+      "checksum": 103000
+    },
+    {
+      "round": 7,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 937414,
+      "checksum": 103000
+    },
+    {
+      "round": 8,
+      "case": "wide",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 100540531,
+      "checksum": 6536850
+    },
+    {
+      "round": 8,
+      "case": "wide",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 114590573,
+      "checksum": 6536850
+    },
+    {
+      "round": 8,
+      "case": "set",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1336129,
+      "checksum": 129000
+    },
+    {
+      "round": 8,
+      "case": "set",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 1371546,
+      "checksum": 129000
+    },
+    {
+      "round": 8,
+      "case": "remove",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 883389,
+      "checksum": 103000
+    },
+    {
+      "round": 8,
+      "case": "remove",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1014516,
+      "checksum": 103000
+    },
+    {
+      "round": 8,
+      "case": "comments",
+      "runner": "candidate",
+      "iterations": 30,
+      "elapsed_ns": 98637761,
+      "checksum": 30004740
+    },
+    {
+      "round": 8,
+      "case": "comments",
+      "runner": "baseline",
+      "iterations": 30,
+      "elapsed_ns": 101528385,
+      "checksum": 30004740
+    },
+    {
+      "round": 8,
+      "case": "deep",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 12158330,
+      "checksum": 251000
+    },
+    {
+      "round": 8,
+      "case": "deep",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 10821063,
+      "checksum": 251000
+    },
+    {
+      "round": 8,
+      "case": "insert",
+      "runner": "candidate",
+      "iterations": 1000,
+      "elapsed_ns": 1983428,
+      "checksum": 158000
+    },
+    {
+      "round": 8,
+      "case": "insert",
+      "runner": "baseline",
+      "iterations": 1000,
+      "elapsed_ns": 2072871,
+      "checksum": 158000
+    }
+  ],
+  "medians_ns_per_call": {
+    "baseline": {
+      "set": 1683.517,
+      "insert": 1945.584,
+      "remove": 1177.241,
+      "wide": 5089356.566666666,
+      "deep": 10871.522,
+      "comments": 3384279.5
+    },
+    "candidate": {
+      "set": 1653.758,
+      "insert": 1983.428,
+      "remove": 1209.974,
+      "wide": 4926945.733333333,
+      "deep": 9892.316,
+      "comments": 3777907.533333333
+    }
+  }
+}
