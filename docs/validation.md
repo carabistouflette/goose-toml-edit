@@ -30,6 +30,14 @@ and core/test bytes. This explicit runtime identity bridge does not substitute
 for fresh pinned-wrapper checks, new-head CI or Honk consumer acceptance.
 The real snapshot receives those gates before a later companion release.
 
+Fresh pinned-wrapper validation passed the standard suites and 494 property
+calls, a direct 5,134-call clean-legacy differential, GCC/Clang sanitizer suites
+with 234 property calls each, and clean-export checks. Two independent scoped
+vendor/API/provenance reviews found no remaining blocker. The
+[successor record](results/adapter-fe849-validation.json) distinguishes these
+results from the earlier overlay bridge. Hosted wrapper CI and the Honk owner's
+exact published-candidate acceptance remain separate gates.
+
 Qualified [upstream experiment evidence](https://github.com/carabistouflette/goose-toml/blob/fe849141405009e36e1cce6eb479b395eae18f1a/source/tests/results/document-reuse/README.md)
 retains all series, controls, duration eligibility and the unreproduced outlier.
 Region counts are fixture-specific; RSS describes whole processes. Neither
