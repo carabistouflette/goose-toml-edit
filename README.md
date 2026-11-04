@@ -62,6 +62,8 @@ Run `make setup` for the pinned compiler, then `make format check test property`
 `make sanitize SANITIZER_CC=gcc` and `SANITIZER_CC=clang` instrument generated C,
 including the Goose runtime; test integration and source checks also run in CI.
 Experimental releases carry no API stability promise.
+Use the [release verifier](docs/release-verification.md) to check a public tag
+and archive against an explicit expected commit and trusted tested head.
 
 Consumer convenience overloads of global `str`/`copy` must not change editor
 validation or returned ownership. The canonical engine constructs owned results;
