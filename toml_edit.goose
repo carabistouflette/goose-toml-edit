@@ -2,7 +2,6 @@
 namespace toml_edit;
 import std;
 import toml;
-import json;
 
 let MAX_INPUT_BYTES = 1048576;
 let MAX_DEPTH = 64;
@@ -87,9 +86,13 @@ fn append_bounded(out: u8[>..]&, text: u8[:]) -> bool {
     if text.len > MAX_INPUT_BYTES - out.len { return false; }
     out.append(text); return true;
 }
-// JSON basic-string escaping is a subset of TOML basic-key escaping. Validate
-// the generated assignment too, so this does not become a second key decoder.
-fn quoted_key(out: u8[>..]&, key: u8[:]) { json::format_string(out, key); }
+// Reuse TOML's encoder, including DEL and control-character escapes.
+fn quoted_key(out: u8[>..]&, key: u8[:]) {
+    var error: u8[>..] = []; var seen: bool[0] = []; var names: toml::WriteName[0] = [];
+    var writer = toml::Writer { output: out, error: error, seen: seen, names: names };
+    toml::write_quoted(writer, key);
+    assert(error.len == 0); // Caller has reserved a conservative <=1 MiB bound.
+}
 
 fn replacement_error(value: u8[:]) -> u8[>..] {
     if value.len == 0 || value.len > MAX_INPUT_BYTES - 4 { return str("toml-edit: empty or oversized replacement"); }

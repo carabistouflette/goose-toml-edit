@@ -8,11 +8,15 @@ format:
 check:
 	python3 scripts/check-vendor.py
 	$(GOOSE) format --check toml_edit.goose tests examples bench
+	$(GOOSE) check tests/boundaries.goose
 	$(GOOSE) check tests/editor.goose
 	$(GOOSE) check tests/driver.goose
 	git diff --check
 test:
 	mkdir -p .build
+	$(GOOSE) run tests/boundaries.goose
+	$(GOOSE) build tests/boundaries.goose -O2 -o .build/boundaries
+	./.build/boundaries
 	$(GOOSE) run tests/editor.goose
 	$(GOOSE) build tests/editor.goose -O2 -o .build/editor
 	./.build/editor
@@ -23,6 +27,10 @@ property:
 	$(GOOSE) build tests/driver.goose -O2 -o .build/driver
 	python3 scripts/property-test.py --runner .build/driver
 sanitize:
+	mkdir -p .build
+	$(GOOSE) tests/boundaries.goose --standalone --debug --no-bce -o .build/boundaries-sanitized.c
+	$(SANITIZER_CC) -O1 -g -fno-pie -no-pie -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer .build/boundaries-sanitized.c -lm -ldl -lpthread -o .build/boundaries-sanitized-$(SANITIZER_CC)
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./.build/boundaries-sanitized-$(SANITIZER_CC)
 	mkdir -p .build
 	$(GOOSE) tests/editor.goose --standalone --debug --no-bce -o .build/editor-sanitized.c
 	$(SANITIZER_CC) -O1 -g -fno-pie -no-pie -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer .build/editor-sanitized.c -lm -ldl -lpthread -o .build/editor-sanitized-$(SANITIZER_CC)
