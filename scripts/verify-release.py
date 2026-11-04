@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Read-only verification of a public release against explicit local Git anchors."""
 import argparse
+from contextlib import contextmanager
 import gzip
 import hashlib
 import io
@@ -9,10 +10,12 @@ import json
 import math
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import time
 import urllib.request
 import urllib.parse
@@ -254,16 +257,50 @@ def _stop_worker(worker):
         raise ValueError('download worker termination/reaping unconfirmed after cleanup allowance') from error
 
 
+@contextmanager
+def _defer_launch_interrupt(cleanup):
+    """Retain ownership before replaying Ctrl-C received inside Popen construction."""
+    require(threading.current_thread() is threading.main_thread(),
+            'live download supervision requires the main thread')
+    previous = signal.getsignal(signal.SIGINT)
+    if previous == signal.SIG_IGN:
+        yield
+        return
+    interrupted = False
+    def defer(signum, frame):
+        nonlocal interrupted
+        interrupted = True
+    signal.signal(signal.SIGINT, defer)
+    try:
+        yield
+    finally:
+        try:
+            if interrupted:
+                cleanup()
+        finally:
+            signal.signal(signal.SIGINT, previous)
+        if interrupted:
+            signal.raise_signal(signal.SIGINT)
+            raise KeyboardInterrupt
+
+
 def _run_download(command_for_directory, seconds):
     """The single budget includes launch and all network requests, not validation."""
     require(math.isfinite(seconds) and 0 < seconds <= 3600, 'invalid network deadline')
     deadline = time.monotonic() + seconds
     with tempfile.TemporaryDirectory(prefix='goose-release-download-') as directory:
         worker = None
+        cleanup_attempted = False
+        def cleanup():
+            nonlocal cleanup_attempted
+            if worker is not None and not cleanup_attempted:
+                cleanup_attempted = True
+                _stop_worker(worker)
         try:
             require(time.monotonic() < deadline, 'network deadline exceeded')
-            worker = subprocess.Popen(command_for_directory(directory), stdin=subprocess.DEVNULL,
-                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            with _defer_launch_interrupt(cleanup):
+                worker = subprocess.Popen(command_for_directory(directory), stdin=subprocess.DEVNULL,
+                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             try:
                 worker.wait(timeout=max(0, deadline - time.monotonic()))
             except subprocess.TimeoutExpired as error:
@@ -276,12 +313,12 @@ def _run_download(command_for_directory, seconds):
                 raise ValueError('live download failed: ' + detail)
             metadata_raw = bounded_file(path / 'metadata.json', MAX_METADATA)
             raw = bounded_file(path / 'archive.tar.gz', MAX_ARCHIVE)
+            metadata = json_data(metadata_raw)
             require(time.monotonic() < deadline, 'network deadline exceeded')
-            return json_data(metadata_raw), metadata_raw, raw
+            return metadata, metadata_raw, raw
         finally:
             # Also runs for KeyboardInterrupt and malformed/incomplete worker results.
-            if worker is not None:
-                _stop_worker(worker)
+            cleanup()
 
 
 def download_live(repo, tag, seconds):

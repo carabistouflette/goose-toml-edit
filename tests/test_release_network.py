@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """Network deadline tests use only loopback traffic and bounded owned children."""
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import argparse
+import io
 import json
 import os
+import signal
 from pathlib import Path
 import subprocess
 import sys
@@ -56,7 +58,7 @@ class NetworkDeadline(unittest.TestCase):
                     stop.wait(10)
                     return
                 if mode == 'cumulative':
-                    if stop.wait(0.8):
+                    if stop.wait(2):
                         return
                 payload = (json.dumps({'tag_name': 'v0.1.0', 'draft': False, 'prerelease': True}).encode()
                            if self.path == '/metadata' else
@@ -108,7 +110,7 @@ class NetworkDeadline(unittest.TestCase):
     def test_all_requests_share_one_budget(self):
         with self.server('cumulative') as (base, requests):
             with self.assertRaisesRegex(ValueError, 'network deadline exceeded'):
-                verifier._run_download(self.command(base, 'normal'), 2.2)
+                verifier._run_download(self.command(base, 'normal'), 5.5)
         self.assertEqual(requests, ['/metadata', '/tag', '/archive'])
         self.assert_cleanup()
 
@@ -159,12 +161,67 @@ class NetworkDeadline(unittest.TestCase):
                 verifier._run_download(self.command('unused', 'normal'), 5)
         self.assert_cleanup()
 
+    def test_ctrl_c_after_spawn_before_handle_return_is_reaped(self):
+        original = subprocess.Popen
+        children = []
+        previous = signal.getsignal(signal.SIGINT)
+        def launch(*args, **kwargs):
+            child = original(*args, **kwargs); children.append(child)
+            signal.raise_signal(signal.SIGINT)
+            return child
+        try:
+            with patch.object(verifier.subprocess, 'Popen', side_effect=launch):
+                with self.assertRaises(KeyboardInterrupt):
+                    verifier._run_download(self.command('unused', 'dns'), 5)
+            self.assertIsNotNone(children[0].returncode)
+            self.assertEqual(signal.getsignal(signal.SIGINT), previous)
+            self.assert_cleanup()
+        finally:
+            # Also contain the fixture if this regression ever fails again.
+            for child in children:
+                if child.poll() is None:
+                    child.kill(); child.wait(timeout=2)
+
     def test_unconfirmed_cleanup_is_not_reported_as_reaped(self):
         child = Mock(returncode=None); child.poll.return_value = None
         child.wait.side_effect = subprocess.TimeoutExpired('fixture', 2)
         with self.assertRaisesRegex(ValueError, 'termination/reaping unconfirmed'):
             verifier._stop_worker(child)
         child.kill.assert_called_once()
+
+    def test_launch_interrupt_cleanup_failure_restores_handler_once(self):
+        previous = signal.getsignal(signal.SIGINT)
+        child = Mock(returncode=None); child.poll.return_value = None
+        child.wait.side_effect = subprocess.TimeoutExpired('fixture', 2)
+        def launch(*args, **kwargs):
+            signal.raise_signal(signal.SIGINT)
+            return child
+        with patch.object(verifier.subprocess, 'Popen', side_effect=launch):
+            with self.assertRaisesRegex(ValueError, 'termination/reaping unconfirmed'):
+                verifier._run_download(self.command('unused', 'normal'), 5)
+        self.assertEqual(signal.getsignal(signal.SIGINT), previous)
+        self.assertEqual(child.wait.call_count, 1)
+        child.kill.assert_called_once()
+        self.assert_cleanup()
+
+    def test_launch_sigint_policy_is_restored_and_cleanup_precedes_replay(self):
+        previous = signal.getsignal(signal.SIGINT)
+        events = []
+        def handler(signum, frame):
+            events.append('handler')
+        try:
+            signal.signal(signal.SIGINT, handler)
+            with self.assertRaises(KeyboardInterrupt):
+                with verifier._defer_launch_interrupt(lambda: events.append('cleanup')):
+                    signal.raise_signal(signal.SIGINT)
+            self.assertEqual(events, ['cleanup', 'handler'])
+            self.assertIs(signal.getsignal(signal.SIGINT), handler)
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+            with verifier._defer_launch_interrupt(lambda: self.fail('ignored interrupt cleanup')):
+                signal.raise_signal(signal.SIGINT)
+            self.assertEqual(signal.getsignal(signal.SIGINT), signal.SIG_IGN)
+        finally:
+            signal.signal(signal.SIGINT, previous)
 
     def test_invalid_deadline_values(self):
         for value in ('0', '-1', 'nan', 'inf', '3601', 'word'):
@@ -185,6 +242,17 @@ m['download_live']('fixture/project','v0.1.0',1)
             command = json.loads(result)
             self.assertIn(option, command)
             self.assertIn('-I', command)
+
+    def test_cli_timeout_and_interrupt_emit_no_success_json(self):
+        arguments = [str(SCRIPT), '--tag', 'v0.1.0', '--expected-commit', 'a' * 40,
+                     '--tested-head', 'b' * 40, '--network-deadline', '0.25']
+        for error, status in ((ValueError('network deadline exceeded'), 1), (KeyboardInterrupt(), 130)):
+            with self.subTest(status=status), patch.object(sys, 'argv', arguments), \
+                    patch.object(verifier, 'download_live', side_effect=error), \
+                    redirect_stdout(io.StringIO()) as output, redirect_stderr(io.StringIO()) as diagnostic:
+                self.assertEqual(verifier.main(), status)
+            self.assertEqual(output.getvalue(), '')
+            self.assertIn('deadline exceeded' if status == 1 else 'interrupted', diagnostic.getvalue())
 
 
 if __name__ == '__main__':
