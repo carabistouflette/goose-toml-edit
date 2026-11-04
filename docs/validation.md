@@ -4,17 +4,40 @@
 
 The companion delegates to supported `toml_source::legacy_set` and
 `legacy_remove` in immutable canonical pin
-`de7dfe092f6d72811417355044e5d024d5600613` (upstream `v0.1.0-alpha.2`).
+`fe849141405009e36e1cce6eb479b395eae18f1a` (upstream `v0.1.0-alpha.3`).
 The adapter waits for the complete owned `(output, error)` pair, then clears and
 appends into the caller's output. It contains no scanner, lookup, key encoder,
 fragment parser or fallback engine. Existing public signatures, constants,
 diagnostic bytes, precedence and aliasing remain the compatibility contract.
 
-The canonical editor blob is identical to reviewed engine checkpoint
-`04c8befbb353da3e90ecaacf20a5977b85d7fe00`; all parser/document/writer/text bytes
-are unchanged from the previous companion pin. The vendor manifest records the
-new full revision and exact source/license hashes, including the canonical
-editor and its upstream README.
+The canonical editor blob matches reviewed checkpoint
+`a79cf60ff6ba86dd887dd5749f5b312ca0ef48b4`, SHA-256
+`1fa20fcb1bb3c7ad1751788ae34d6c91dd348397e8871283da6c687c222b59c1`.
+Only that editor changes from the prior nine-file vendor snapshot. All eight
+other files, including core, licenses and source README, remain byte-identical.
+The adapter, public API, bounds and error contract remain unchanged.
+
+The approved upstream merge does not share the complete tested-head tree.
+Only root README/CHANGELOG differ from tested
+`debe1ab0fc6a99b5db41d308fb302aa9a925bbb2`, exactly matching approved docs parent
+`70fb784417798742394e15629d246d3c42a5724d`. Runtime/editor/oracle identities are
+verified separately; the generic release verifier's strict tree check is not
+weakened or presented as validating that upstream docs bridge.
+
+The isolated `ae32` adapter overlay passed eight unchanged direct execution modes
+and GCC/Clang ASan/UBSan, with 234 property calls each, on the identical editor
+and core/test bytes. This explicit runtime identity bridge does not substitute
+for fresh pinned-wrapper checks, new-head CI or Honk consumer acceptance.
+The real snapshot receives those gates before a later companion release.
+
+Qualified [upstream experiment evidence](https://github.com/carabistouflette/goose-toml/blob/fe849141405009e36e1cce6eb479b395eae18f1a/source/tests/results/document-reuse/README.md)
+retains all series, controls, duration eligibility and the unreproduced outlier.
+Region counts are fixture-specific; RSS describes whole processes. Neither
+establishes per-call allocation savings or a universal speedup. No new timing
+campaign accompanies this update. Published alpha.3 approval supersedes the
+retained experiment's historical pre-promotion hold.
+
+### Original v0.1.0 consolidation evidence
 
 The unchanged 21-case legacy artifact is checked by SHA-256 before each property
 campaign. It was captured from clean companion `cedb2c3`, before canonical profile
@@ -26,11 +49,11 @@ tests additionally exercise source/value/path aliases with output, returned erro
 ownership, NUL keys, empty paths, exact decoded-path limits and conservative
 sixfold key-rendering limits.
 
-The actual adapter passes a direct 5,134-call comparison against the preserved
-legacy binary, including exact output and error bytes. Standard checks pass 494
+The original released adapter passed a direct 5,134-call comparison against the preserved
+legacy binary, including exact output and error bytes. Standard checks passed 494
 property calls plus direct JIT/O2/debug alias/overload/boundary tests. GCC and
-Clang ASan/UBSan each pass the direct suites plus 234 property calls. A clean Git
-export passes checks/tests/property without sibling dependencies. Two independent
+Clang ASan/UBSan each passed the direct suites plus 234 property calls. A clean Git
+export passed checks/tests/property without sibling dependencies. Two independent
 wrapper/vendor/harness reviews found no remaining blockers; every vendored byte
 was compared against the public immutable Git objects. Full provenance is in
 [the adapter validation record](results/adapter-de7dfe0-validation.json).
@@ -91,9 +114,13 @@ can be conservatively rejected. The underlying parser enforces node/depth and
 key-index work limits; the complete output is reparsed for combined bounds.
 
 There is one instrumented source parse and a full result parse; set additionally
-parses its replacement as exactly one value. Statement ancestor checks are at
-most64 steps, and insertion selects a header in at most64 statement scans.
-Memory grows with bounded document arenas, statement spans and owned output.
+parses its replacement as exactly one value. Canonical lookup walks sibling
+lists, removal selects descendants with a node bitmap, and insertion records
+header contexts before selecting an anchor. Terminal result parsing reuses the
+Document only after all original edit metadata is consumed. Parser work limits
+remain unchanged. Storage grows with bounded document arenas, statement spans,
+selection/context buffers and owned output; no strict allocation-byte budget
+or per-call memory-saving claim is made.
 The editor does no I/O, native allocation tricks, recursion of its own or
 cryptography. It does not edit inside inline tables or index arrays, and does
 not replace a declared table with an inline value.
