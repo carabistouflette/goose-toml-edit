@@ -8,7 +8,9 @@ Successful calls write OUTPUT_FILE; rejected calls return nonzero without
 creating it. No editor implementation or source-span scanner is reproduced here.
 """
 import argparse
+import base64
 import copy
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -20,6 +22,8 @@ import tomllib
 
 LIMIT = 1_048_576
 SEED = 20261104
+LEGACY_REVISION = 'cedb2c3c98affbeb45bd34bc7a6618f5a9b75ad0'
+GOLDEN_SHA256 = 'f137e22aec1276deb6728fd261d77ece3f76c5eac1de6d7cb0dde804b9f50fbd'
 
 
 def key(value):
@@ -60,12 +64,14 @@ def same(actual, expected):
 
 
 class Campaign:
-    def __init__(self, runner, directory):
+    def __init__(self, runner, directory, canonical_oracle=None):
         self.runner = runner
         self.directory = directory
+        self.canonical_oracle = canonical_oracle
         self.calls = 0
 
-    def call(self, mode, source, path, value=b'', *, rejected=False, expected=None):
+    def call(self, mode, source, path, value=b'', *, rejected=False, expected=None,
+             expected_error=None):
         self.calls += 1
         source_file = self.directory / 'source.toml'
         value_file = self.directory / 'value.toml'
@@ -83,17 +89,38 @@ class Campaign:
             raise AssertionError(f'editor modified input file: {context}')
         if value_file.read_bytes() != value:
             raise AssertionError(f'editor modified replacement file: {context}')
-        if any(marker in result.stderr for marker in
-               (b'AddressSanitizer', b'UndefinedBehaviorSanitizer', b'runtime error:', b'LeakSanitizer')):
-            raise AssertionError(f'sanitizer diagnostic: {context}')
+        if result.stderr:
+            raise AssertionError(f'unexpected runner diagnostic: {context}')
+        output = output_file.read_bytes() if output_file.is_file() else None
+        if self.canonical_oracle:
+            fields = ['LS' if mode == 'set' else 'LR', source.hex(), value.hex(),
+                      *(part.encode().hex() for part in path)]
+            oracle = subprocess.run([str(self.canonical_oracle)],
+                                    input=('\t'.join(fields) + '\n').encode(),
+                                    capture_output=True, timeout=20)
+            if oracle.returncode != 0 or oracle.stderr:
+                raise AssertionError(f'canonical oracle failed: {oracle!r}, {context}')
+            parts = oracle.stdout.removesuffix(b'\n').split(b'\t')
+            if len(parts) != 3 or parts[0] not in (b'O', b'E'):
+                raise AssertionError(f'invalid canonical oracle protocol: {oracle.stdout!r}')
+            canonical_output, canonical_error = map(bytes.fromhex,
+                                                    (part.decode() for part in parts[1:]))
+            actual = (result.returncode, output, result.stdout)
+            canonical = ((0, canonical_output, b'') if parts[0] == b'O' else
+                         (1, None, canonical_error + b'\n'))
+            if (parts[0] == b'O' and canonical_error) or (parts[0] == b'E' and
+                    (canonical_output or not canonical_error)) or actual != canonical:
+                raise AssertionError(f'legacy/canonical byte mismatch: {context}, '
+                                     f'canonical={canonical!r}, actual={actual!r}')
         if rejected:
             # A crash or sanitizer abort is not an acceptable rejection.
-            if result.returncode != 1 or output_file.exists():
+            if result.returncode != 1 or output_file.exists() or not result.stdout:
                 raise AssertionError(f'expected clean rejection without output: {context}')
+            if expected_error is not None and result.stdout != expected_error + b'\n':
+                raise AssertionError(f'legacy diagnostic byte mismatch: {context}')
             return None
-        if result.returncode != 0 or not output_file.is_file():
+        if result.returncode != 0 or output is None or result.stdout:
             raise AssertionError(f'expected success and owned output: {context}')
-        output = output_file.read_bytes()
         if len(output) > LIMIT:
             raise AssertionError(f'oversized successful result: {context}')
         if expected is not None and output != expected:
@@ -133,6 +160,29 @@ VALUES = [
     b'1979-05-27', b'07:32:00', b'1979-05-27T07:32:00Z',
     b'1979-05-27 07:32:00.123456789+07:00',
 ]
+
+
+def frozen_legacy(campaign):
+    """Immutable results captured from clean cedb2c3, never from the candidate."""
+    fixture = Path(__file__).resolve().parents[1] / 'tests/fixtures/legacy-cedb2c3.json'
+    raw = fixture.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != GOLDEN_SHA256:
+        raise AssertionError('frozen legacy oracle artifact changed')
+    document = json.loads(raw)
+    if document['legacy_revision'] != LEGACY_REVISION or len(document['cases']) != 21:
+        raise AssertionError('unexpected legacy artifact provenance')
+    for case in document['cases']:
+        campaign.call(case['mode'], base64.b64decode(case['source_b64'], validate=True),
+                      case['path'], base64.b64decode(case['value_b64'], validate=True),
+                      rejected=case['status'] == 1,
+                      expected=base64.b64decode(case['output_b64'], validate=True),
+                      expected_error=case['error'].encode())
+    # Independently replayed against the same preserved clean legacy binary.
+    for value, error in (
+        (b'[', b'toml: invalid decimal integer part at byte 5 (line 1, byte column 6)'),
+        (b'{a=1,}', b'toml: expected key at byte 9 (line 1, byte column 10)'),
+    ):
+        campaign.call('set', b'x = 1\n', ['x'], value, rejected=True, expected_error=error)
 
 
 def fixed(campaign):
@@ -217,6 +267,16 @@ def adversarial(campaign):
     # The combined path/value depth can exceed the limit although each passes
     # its own preflight. A successful result must still parse under both parsers.
     campaign.call('set', b'', ['key'] * 64, b'[0]', rejected=True)
+    # Separate argv components keep the exact 1 MiB path portable on Linux.
+    path = ['a' * (LIMIT // 64)] * 64
+    campaign.call('remove', b'x=1', path, expected=b'x=1')
+    path[-1] += 'a'
+    campaign.call('remove', b'x=1', path, rejected=True,
+                  expected_error=b'toml-edit: invalid or oversized key path')
+    value = b'1' + b' ' * (LIMIT - 5)
+    campaign.call('set', b'x=0', ['x'], value, expected=b'x=' + value)
+    campaign.call('set', b'x=0', ['x'], value + b' ', rejected=True,
+                  expected_error=b'toml-edit: empty or oversized replacement')
 
 
 def generated(campaign, cases, seed):
@@ -259,16 +319,30 @@ def main():
     parser.add_argument('--runner', type=Path, required=True)
     parser.add_argument('--cases', type=int, default=360)
     parser.add_argument('--seed', type=int, default=SEED)
+    parser.add_argument('--canonical-oracle', type=Path,
+                        help='compare every call to an isolated canonical LS/LR hex-protocol oracle')
     args = parser.parse_args()
     if not 1 <= args.cases <= 100_000:
         parser.error('--cases must be between 1 and 100000')
+    executables = [args.runner.resolve()]
+    if args.canonical_oracle:
+        executables.append(args.canonical_oracle.resolve())
+    hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in executables}
     with tempfile.TemporaryDirectory(prefix='goose-toml-edit-property-') as temp:
-        campaign = Campaign(args.runner.resolve(), Path(temp))
+        campaign = Campaign(executables[0], Path(temp),
+                            executables[1] if args.canonical_oracle else None)
+        frozen_legacy(campaign)
         fixed(campaign)
         adversarial(campaign)
         generated(campaign, args.cases, args.seed)
+        for path, digest in hashes.items():
+            if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                raise AssertionError(f'runner changed during campaign: {path}')
         print(f'Passed {campaign.calls} public editor calls; '
               f'{args.cases} generated cases, seed {args.seed}; Python tomllib oracle')
+        if args.canonical_oracle:
+            print('Exact canonical differential passed; executable SHA-256:',
+                  json.dumps({str(path): digest for path, digest in hashes.items()}, sort_keys=True))
 
 
 if __name__ == '__main__':
