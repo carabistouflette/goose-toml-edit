@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Hermetic release verification, including deliberately malformed artifacts."""
 import copy
+from contextlib import redirect_stdout
 import gzip
 import hashlib
 import importlib.util
@@ -203,6 +204,15 @@ class ReleaseVerification(unittest.TestCase):
         good = subprocess.run(command, capture_output=True, timeout=30)
         self.assertEqual(good.returncode, 0, good.stderr)
         self.assertEqual(json.loads(good.stdout)['metadata_mode'], 'offline')
+        # A tiny network budget cannot affect offline verification or spawn a worker.
+        with patch.object(verifier, 'download_live', side_effect=AssertionError('offline network')), \
+                patch.object(verifier.tempfile, 'TemporaryDirectory', side_effect=AssertionError('offline temp')), \
+                patch.object(sys, 'argv', command[2:] + ['--network-deadline', '0.001']), \
+                redirect_stdout(io.StringIO()) as captured:
+            self.assertEqual(verifier.main(), 0)
+        offline = json.loads(captured.getvalue())
+        self.assertEqual(offline['metadata_mode'], 'offline')
+        self.assertNotIn('network_deadline_seconds', offline)
         archive.write_bytes(self.archive(dict(self.files, LICENSE=b'corrupt')))
         bad = subprocess.run(command, capture_output=True, timeout=30)
         self.assertEqual(bad.returncode, 1, bad.stderr)
@@ -215,6 +225,9 @@ class ReleaseVerification(unittest.TestCase):
         oversized = subprocess.run(command, capture_output=True, timeout=30)
         self.assertEqual(oversized.returncode, 1)
         self.assertIn(b'input file exceeds limit', oversized.stderr)
+        invalid = subprocess.run(command + ['--network-deadline', 'nan'], capture_output=True, timeout=30)
+        self.assertEqual(invalid.returncode, 2)
+        self.assertIn(b'must be finite', invalid.stderr)
 
     def test_fetch_ignores_credential_proxy_and_bounds_response(self):
         requests = []

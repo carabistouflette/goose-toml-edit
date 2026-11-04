@@ -6,11 +6,14 @@ import gzip
 import hashlib
 import io
 import json
+import math
 from pathlib import Path
 import re
 import subprocess
 import sys
 import tarfile
+import tempfile
+import time
 import urllib.request
 import urllib.parse
 import zlib
@@ -21,6 +24,8 @@ MAX_FILE = 16 * 1024 * 1024
 MAX_ENTRIES = 8192
 MAX_METADATA = 1024 * 1024
 FORBIDDEN = {'.git', '.build', '.toolchain', '__pycache__'}
+DEFAULT_NETWORK_DEADLINE = 120.0
+WORKER_CLEANUP_SECONDS = 2.0
 
 
 def require(condition, message):
@@ -213,6 +218,80 @@ def bounded_file(path, limit):
     return raw
 
 
+def network_seconds(value):
+    try:
+        seconds = float(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError('network deadline must be a number') from error
+    if not math.isfinite(seconds) or not 0 < seconds <= 3600:
+        raise argparse.ArgumentTypeError('network deadline must be finite and in (0, 3600] seconds')
+    return seconds
+
+
+def _download_worker(directory, repo, tag):
+    """One network-only child; bounded files avoid pipe/queue shutdown deadlocks."""
+    directory = Path(directory)
+    try:
+        metadata = live_metadata(repo, tag)
+        raw = fetch('https://codeload.github.com/' + repo + '/tar.gz/refs/tags/' +
+                    urllib.parse.quote(tag, safe=''), MAX_ARCHIVE)
+        encoded = json.dumps(metadata, sort_keys=True, separators=(',', ':')).encode()
+        require(len(encoded) <= MAX_METADATA, 'combined metadata exceeds limit')
+        (directory / 'metadata.json').write_bytes(encoded)
+        (directory / 'archive.tar.gz').write_bytes(raw)
+        return 0
+    except Exception as error:
+        (directory / 'error.txt').write_bytes(str(error).encode('utf-8', errors='replace')[:4096])
+        return 1
+
+
+def _stop_worker(worker):
+    if worker.poll() is None:
+        worker.kill()
+    try:
+        worker.wait(timeout=WORKER_CLEANUP_SECONDS)
+    except subprocess.TimeoutExpired as error:
+        raise ValueError('download worker termination/reaping unconfirmed after cleanup allowance') from error
+
+
+def _run_download(command_for_directory, seconds):
+    """The single budget includes launch and all network requests, not validation."""
+    require(math.isfinite(seconds) and 0 < seconds <= 3600, 'invalid network deadline')
+    deadline = time.monotonic() + seconds
+    with tempfile.TemporaryDirectory(prefix='goose-release-download-') as directory:
+        worker = None
+        try:
+            require(time.monotonic() < deadline, 'network deadline exceeded')
+            worker = subprocess.Popen(command_for_directory(directory), stdin=subprocess.DEVNULL,
+                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                worker.wait(timeout=max(0, deadline - time.monotonic()))
+            except subprocess.TimeoutExpired as error:
+                raise ValueError('network deadline exceeded') from error
+            require(time.monotonic() < deadline, 'network deadline exceeded')
+            path = Path(directory)
+            if worker.returncode != 0:
+                detail = bounded_file(path / 'error.txt', 4096).decode('utf-8', errors='replace') \
+                    if (path / 'error.txt').is_file() else f'exit status {worker.returncode}'
+                raise ValueError('live download failed: ' + detail)
+            metadata_raw = bounded_file(path / 'metadata.json', MAX_METADATA)
+            raw = bounded_file(path / 'archive.tar.gz', MAX_ARCHIVE)
+            require(time.monotonic() < deadline, 'network deadline exceeded')
+            return json_data(metadata_raw), metadata_raw, raw
+        finally:
+            # Also runs for KeyboardInterrupt and malformed/incomplete worker results.
+            if worker is not None:
+                _stop_worker(worker)
+
+
+def download_live(repo, tag, seconds):
+    launcher = ('import runpy,sys; namespace=runpy.run_path(sys.argv[1],run_name="release_worker"); '
+                'sys.exit(namespace["_download_worker"](*sys.argv[2:]))')
+    optimization = ['-OO' if sys.flags.optimize >= 2 else '-O'] if sys.flags.optimize else []
+    return _run_download(lambda directory: [sys.executable, '-I', *optimization, '-c', launcher,
+                         str(Path(__file__).resolve()), directory, repo, tag], seconds)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tag', required=True)
@@ -223,6 +302,8 @@ def main():
     parser.add_argument('--metadata', type=Path, help='offline API bundle: release, tag_ref, annotated_tags')
     parser.add_argument('--archive', type=Path, help='offline GitHub-style gzip tar archive')
     parser.add_argument('--stable', action='store_true', help='require a stable release instead of prerelease')
+    parser.add_argument('--network-deadline', type=network_seconds, default=DEFAULT_NETWORK_DEADLINE,
+                        metavar='SECONDS', help='total live-download budget (default: 120 seconds)')
     args = parser.parse_args()
     if bool(args.metadata) != bool(args.archive):
         parser.error('--metadata and --archive must be supplied together')
@@ -234,19 +315,21 @@ def main():
             metadata = json_data(metadata_raw)
             raw = bounded_file(args.archive, MAX_ARCHIVE)
         else:
-            metadata = live_metadata(args.repo, args.tag)
-            metadata_raw = json.dumps(metadata, sort_keys=True, separators=(',', ':')).encode()
-            raw = fetch('https://codeload.github.com/' + args.repo + '/tar.gz/refs/tags/' +
-                        urllib.parse.quote(args.tag, safe=''), MAX_ARCHIVE)
+            metadata, metadata_raw, raw = download_live(args.repo, args.tag, args.network_deadline)
         report = verify(args.git_repo, args.tag, args.expected_commit, args.tested_head,
                         metadata, raw, not args.stable)
         report.update({'metadata_mode': 'offline' if args.metadata else 'live',
                        'metadata_sha256': hashlib.sha256(metadata_raw).hexdigest(), 'repository': args.repo})
+        if not args.metadata:
+            report['network_deadline_seconds'] = args.network_deadline
         print(json.dumps(report, indent=2))
     except (ValueError, KeyError, TypeError, OSError, EOFError, RecursionError, zlib.error, tarfile.TarError,
             subprocess.SubprocessError) as error:
         print(f'release verification failed: {error}', file=sys.stderr)
         return 1
+    except KeyboardInterrupt:
+        print('release verification interrupted', file=sys.stderr)
+        return 130
     return 0
 
 
