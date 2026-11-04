@@ -162,7 +162,7 @@ fn edit(source: u8[:], path: const u8[:][:], value: u8[:], removing: bool, out: 
             let newline = line_ending(source);
             if anchor > 0 && source[anchor - 1] != '\n' { insertion.append(newline); }
             for part, i in path[consumed..] {
-                if i > 0 { insertion.push('.'); }
+                if i > 0 && !append_bounded(insertion, ".") { return str("toml-edit: rendered path exceeds 1 MiB"); }
                 // Worst-case TOML escaping is six bytes per input byte.
                 if insertion.len > MAX_INPUT_BYTES - 2 || part.len > (MAX_INPUT_BYTES - insertion.len - 2) / 6 { return str("toml-edit: rendered path exceeds 1 MiB"); }
                 quoted_key(insertion, part);
