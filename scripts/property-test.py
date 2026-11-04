@@ -64,10 +64,11 @@ def same(actual, expected):
 
 
 class Campaign:
-    def __init__(self, runner, directory, canonical_oracle=None):
+    def __init__(self, runner, directory, canonical_oracle=None, reference_runner=None):
         self.runner = runner
         self.directory = directory
         self.canonical_oracle = canonical_oracle
+        self.reference_runner = reference_runner
         self.calls = 0
 
     def call(self, mode, source, path, value=b'', *, rejected=False, expected=None,
@@ -92,6 +93,19 @@ class Campaign:
         if result.stderr:
             raise AssertionError(f'unexpected runner diagnostic: {context}')
         output = output_file.read_bytes() if output_file.is_file() else None
+        if self.reference_runner:
+            reference_file = self.directory / 'reference-output.toml'
+            reference_file.unlink(missing_ok=True)
+            reference = subprocess.run([str(self.reference_runner), mode, str(source_file),
+                                        str(value_file), str(reference_file), *path],
+                                       capture_output=True, timeout=20)
+            reference_output = reference_file.read_bytes() if reference_file.is_file() else None
+            if reference.stderr or (reference.returncode, reference_output, reference.stdout) != (
+                    result.returncode, output, result.stdout):
+                raise AssertionError(f'reference byte mismatch: {context}, '
+                                     f'reference={reference!r}, output={reference_output!r}')
+            if source_file.read_bytes() != source or value_file.read_bytes() != value:
+                raise AssertionError(f'reference modified input files: {context}')
         if self.canonical_oracle:
             fields = ['LS' if mode == 'set' else 'LR', source.hex(), value.hex(),
                       *(part.encode().hex() for part in path)]
@@ -321,16 +335,18 @@ def main():
     parser.add_argument('--seed', type=int, default=SEED)
     parser.add_argument('--canonical-oracle', type=Path,
                         help='compare every call to an isolated canonical LS/LR hex-protocol oracle')
+    parser.add_argument('--reference-runner', type=Path,
+                        help='compare every call to an immutable legacy file/argv runner')
     args = parser.parse_args()
     if not 1 <= args.cases <= 100_000:
         parser.error('--cases must be between 1 and 100000')
     executables = [args.runner.resolve()]
-    if args.canonical_oracle:
-        executables.append(args.canonical_oracle.resolve())
+    executables += [path.resolve() for path in (args.canonical_oracle, args.reference_runner) if path]
     hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in executables}
     with tempfile.TemporaryDirectory(prefix='goose-toml-edit-property-') as temp:
         campaign = Campaign(executables[0], Path(temp),
-                            executables[1] if args.canonical_oracle else None)
+                            args.canonical_oracle.resolve() if args.canonical_oracle else None,
+                            args.reference_runner.resolve() if args.reference_runner else None)
         frozen_legacy(campaign)
         fixed(campaign)
         adversarial(campaign)
@@ -340,8 +356,8 @@ def main():
                 raise AssertionError(f'runner changed during campaign: {path}')
         print(f'Passed {campaign.calls} public editor calls; '
               f'{args.cases} generated cases, seed {args.seed}; Python tomllib oracle')
-        if args.canonical_oracle:
-            print('Exact canonical differential passed; executable SHA-256:',
+        if args.canonical_oracle or args.reference_runner:
+            print('Exact differential passed; executable SHA-256:',
                   json.dumps({str(path): digest for path, digest in hashes.items()}, sort_keys=True))
 
 

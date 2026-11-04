@@ -24,3 +24,15 @@ protocol. Every call compares complete results and rejects crashes, stderr and
 failure output. Binary hashes are checked before and after the campaign; retain
 the separately verified build provenance to associate binaries with commits.
 Checkpoint evidence is recorded in `docs/results/canonical-5cca023-parity.json`.
+
+To compare the companion adapter itself directly to that legacy binary:
+
+```sh
+python3 scripts/property-test.py --runner .build/driver \
+  --reference-runner .build/consolidation-legacy-driver --cases 5000
+```
+
+The reference runner uses the same file/argv protocol and a separate output
+file. It must preserve both input files and match status, output and diagnostic
+bytes exactly. Its immutable source/build provenance remains part of the run
+record; a stable binary hash alone does not establish its source identity.

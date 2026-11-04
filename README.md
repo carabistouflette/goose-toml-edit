@@ -18,16 +18,25 @@ fn main() {
 
 Goose requires dependency mappings in the application's root file. Map `toml`
 to the pinned snapshot here, or to the identical reviewed upstream revision in
-[vendor/manifest.json](vendor/manifest.json). The editor intentionally couples
-to that parser's internal helpers to record source spans without introducing a
-second TOML decoder. Dependency updates require the complete validation suite.
+[vendor/manifest.json](vendor/manifest.json). This companion is a thin adapter
+over the supported `toml_source::legacy_set` and `legacy_remove` entry points in
+the canonical source editor. The pinned engine owns parsing, validation, source
+spans and edit policy; the adapter obtains its complete owned result before
+replacing the caller's output. Dependency updates require the complete
+validation suite.
+
+The immutable canonical pin is
+[`de7dfe092f6d72811417355044e5d024d5600613`](https://github.com/carabistouflette/goose-toml/commit/de7dfe092f6d72811417355044e5d024d5600613),
+published as upstream `v0.1.0-alpha.2`. The compatibility profile is absent from
+upstream `v0.1.0-alpha.1`; use the recorded full pin rather than a moving branch.
 
 `set(source, decoded_path, raw_value, out)` replaces a complete assignment or
 inserts a missing key. Path components are decoded keys: dots within a component
 are literal. `remove(source, decoded_path, out)` removes assignments and table
 headers in that subtree; missing keys are a successful no-op. Both return an
 owned error string, empty on success, and replace `out`. Failure clears `out`;
-source is untouched. Output owns its bytes; source may alias `out` during a call.
+source is untouched. Output owns its bytes; source, raw value and borrowed path
+components may alias `out` during a call.
 
 Existing assignment replacement changes only its value token. Removal deletes
 only declaration syntax, retaining indentation, trailing comments, newlines and
@@ -38,8 +47,9 @@ style (LF when there is none). All other original bytes remain unchanged.
 
 Replacing a declared table with an inline value, navigation through arrays or
 inside inline tables is unsupported and returns an error. A complete inline
-assignment can be replaced or removed. Arrays of tables elsewhere in the file
-are preserved. Invalid inputs and replacement suffix comments/newlines/extra
+assignment can be replaced or removed. A whole array of tables can be removed;
+its elements cannot be selected individually. Arrays of tables elsewhere in the
+file are preserved. Invalid inputs and replacement suffix comments/newlines/extra
 statements are rejected. Internal newlines inside arrays/strings are supported.
 
 Source and output are capped at 1 MiB; decoded paths at 64 components and 1 MiB
@@ -54,7 +64,7 @@ including the Goose runtime; test integration and source checks also run in CI.
 There are no releases or stability promises yet.
 
 Consumer convenience overloads of global `str`/`copy` must not change editor
-validation or returned ownership. The editor constructs diagnostics, replacement
-wrappers and owned output using a namespaced helper with built-in byte appends.
+validation or returned ownership. The canonical engine constructs owned results;
+the adapter copies output with built-in byte appends after the call completes.
 `tests/overloads.goose` exercises this contract together with numeric conversion
 and index-growth overloads covered by the pinned parser fix.
