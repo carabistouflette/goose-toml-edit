@@ -1,0 +1,30 @@
+{
+  "canonical_revision": "de7dfe092f6d72811417355044e5d024d5600613",
+  "runtime_checkpoint": "b201c4dd4f187de2c0e8bba2ee832c3338a4828e",
+  "baseline": {
+    "legacy_revision": "cedb2c3c98affbeb45bd34bc7a6618f5a9b75ad0",
+    "source_dirty": false,
+    "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+    "compiler_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+    "editor_sha256": "1c91847f3e2543f4b8b928f53ca4f1c8ab2a40e5cdad431fe1f42d0d2cd4362d",
+    "driver_source_sha256": "d6fde502bec97a4151d34527bafa5fbf7b20abfd888d2ecf0d4ea7c58ca4ab0d",
+    "driver_binary_sha256": "ce153a8971ad5a32dd1811d29e49c338d970b98d61d96428c98f9f8edd77a884",
+    "vendor_manifest_sha256": "49ab6337595574a4fc3ed98a2302df0e7b75ae50e012cfad4529ba867652440e",
+    "flags": "goose build -O2; pinned compiler; CPU4"
+  },
+  "adapter_sha256": "4516ff7e266f4fa5e6d0c4ee3db0bd3089b8c9be4cfdc932d2d6c3385bf04791",
+  "vendor_manifest_sha256": "289fac429db541e3ff688d82c86dacfea55864f8d3eee78110c5c43db344b1f6",
+  "command": "python3 scripts/property-test.py --runner .build/driver --reference-runner .build/consolidation-legacy-driver --cases 5000",
+  "calls": 5134,
+  "seed": 20261104,
+  "result": "pass",
+  "stdout": "Passed 5134 public editor calls; 5000 generated cases, seed 20261104; Python tomllib oracle\nExact differential passed; executable SHA-256: {\"/home/arobin/Work/Projects/goose-libs/libraries/goose-toml-edit/.build/consolidation-legacy-driver\": \"ce153a8971ad5a32dd1811d29e49c338d970b98d61d96428c98f9f8edd77a884\", \"/home/arobin/Work/Projects/goose-libs/libraries/goose-toml-edit/.build/driver\": \"dd2b8e6dc0df1aa7ffb2bf5b3c04d3f5a8f329ccfa702ef234e4bcce04869787\"}\n",
+  "checks": [
+    "make format check test property: pass, 494 public calls plus direct JIT/O2/debug tests",
+    "GCC ASan/UBSan: pass, direct overload/boundary/alias tests plus 234 public calls",
+    "Clang ASan/UBSan: pass, direct overload/boundary/alias tests plus 234 public calls",
+    "Clean git archive without sibling dependencies or toolchain files: check/test/property passed494 public calls",
+    "Two independent wrapper/vendor reviews: no blocking findings; benchmark evidence-integrity findings fixed before timing"
+  ],
+  "notes": "Expected bytes/errors originate from clean cedb2c3 and the unchanged frozen21-case artifact, never from adapter output. All9 vendored files independently matched public canonical Git objects. Runtime and semantic consumer validation in Honk remains owned by its maintainer."
+}

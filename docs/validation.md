@@ -26,6 +26,20 @@ tests additionally exercise source/value/path aliases with output, returned erro
 ownership, NUL keys, empty paths, exact decoded-path limits and conservative
 sixfold key-rendering limits.
 
+The actual adapter passes a direct 5,134-call comparison against the preserved
+legacy binary, including exact output and error bytes. Standard checks pass 494
+property calls plus direct JIT/O2/debug alias/overload/boundary tests. GCC and
+Clang ASan/UBSan each pass the direct suites plus 234 property calls. A clean Git
+export passes checks/tests/property without sibling dependencies. Two independent
+wrapper/vendor/harness reviews found no remaining blockers; every vendored byte
+was compared against the public immutable Git objects. Full provenance is in
+[the adapter validation record](results/adapter-de7dfe0-validation.json).
+
+[Paired full-call timing records](../bench/results/canonical-adapter/README.md)
+retain both the initial short-loop series and its longer-loop confirmation.
+They expose shared-host/run sensitivity and a comment-heavy slowdown in both
+series. These measurements support no universal speedup claim.
+
 ## Original implementation validation
 
 Validated with the exact upstream Goose compiler in GOOSE_REVISION. The vendor
