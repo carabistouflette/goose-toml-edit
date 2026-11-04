@@ -37,9 +37,12 @@ def main():
     parser.add_argument('--goose', type=Path, required=True)
     parser.add_argument('--rounds', type=int, default=9)
     parser.add_argument('--iterations', type=int, default=30)
+    parser.add_argument('--small-iterations', type=int, default=1000,
+                        help='longer loops for set/insert/remove/deep to amortize first-call effects')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    if not 1 <= args.rounds <= 100 or not 1 <= args.iterations <= 10000:
+    if not 1 <= args.rounds <= 100 or not all(1 <= count <= 10000 for count in
+                                           (args.iterations, args.small_iterations)):
         parser.error('invalid round/iteration count')
     root = Path(__file__).resolve().parents[1]
     reproducer_hash = digest(Path(__file__))
@@ -71,6 +74,8 @@ def main():
     cpu = min(os.sched_getaffinity(0))
     os.sched_setaffinity(0, {cpu})
     cases = ['set', 'insert', 'remove', 'wide', 'deep', 'comments']
+    iterations = {case: args.iterations if case in ('wide', 'comments') else args.small_iterations
+                  for case in cases}
     checksums = {}
     for case in cases:
         values = [tuple(map(int, call([str(path), case, '1']).split())) for path in runners.values()]
@@ -87,16 +92,17 @@ def main():
             if (round_index + case_index) % 2:
                 names.reverse()
             for name in names:
-                elapsed, checksum = map(int, call([str(runners[name]), case, str(args.iterations)]).split())
-                if elapsed <= 0 or checksum != checksums[case] * args.iterations:
+                count = iterations[case]
+                elapsed, checksum = map(int, call([str(runners[name]), case, str(count)]).split())
+                if elapsed <= 0 or checksum != checksums[case] * count:
                     raise AssertionError(f'measurement mismatch: {name}, {case}')
                 samples.append({'round': round_index, 'case': case, 'runner': name,
-                                'elapsed_ns': elapsed, 'checksum': checksum})
+                                'iterations': count, 'elapsed_ns': elapsed, 'checksum': checksum})
     if reproducer_hash != digest(Path(__file__)) or compiler_hash != digest(args.goose.resolve()) or sources != {
             'baseline': fingerprint(baseline_root), 'candidate': fingerprint(root)} or hashes != {
             name: digest(path) for name, path in runners.items()}:
         raise AssertionError('source or binary changed during measurements')
-    medians = {name: {case: statistics.median(sample['elapsed_ns'] / args.iterations
+    medians = {name: {case: statistics.median(sample['elapsed_ns'] / sample['iterations']
                  for sample in samples if sample['runner'] == name and sample['case'] == case)
                  for case in cases} for name in runners}
     report = {'baseline_revision': baseline_revision,
@@ -110,7 +116,7 @@ def main():
               'platform': platform.platform(), 'cpu_affinity': cpu,
               'cpu_model': next(line.split(':', 1)[1].strip() for line in
                   Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),
-              'rounds': args.rounds, 'iterations': args.iterations, 'seed': seed,
+              'rounds': args.rounds, 'iterations_per_case': iterations, 'seed': seed,
               'limitations': 'Shared host, no exclusive CPU claim. Fixture construction/process startup '
                   'excluded by runner clock; parsing, validation, allocation and output copying included. '
                   'Alternating paired order and shuffled cases reduce order bias; finite workload evidence only.',
