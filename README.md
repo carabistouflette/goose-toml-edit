@@ -43,7 +43,8 @@ are preserved. Invalid inputs and replacement suffix comments/newlines/extra
 statements are rejected. Internal newlines inside arrays/strings are supported.
 
 Source and output are capped at 1 MiB; decoded paths at 64 components and 1 MiB
-combined bytes. The pinned parser additionally bounds nodes, depth and key-index
+combined bytes. Insertion reserves six encoded bytes per key byte; this can
+conservatively reject large plain keys before actual output reaches the cap. The pinned parser additionally bounds nodes, depth and key-index
 work. Complete result validation enforces combined limits and TOML declaration
 rules before returning output. There are no runtime native dependencies.
 

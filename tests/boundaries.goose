@@ -36,5 +36,9 @@ fn main() {
         assert((expected.len == 0) == (error.len == 0));
         assert(if error.len == 0 { checked == sample } else { checked.len == 0 });
     }
+    var wide = str("");
+    for i in 65534 { wide.append(str("k", i, "=0\n")); }
+    assert(toml_edit::set(wide, ["last"], "1", out).len == 0);
+    assert(toml_edit::set(out, ["overflow"], "1", out).len > 0 && out.len == 0);
     print("boundary and parser parity tests passed");
 }
