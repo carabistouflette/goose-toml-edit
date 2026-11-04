@@ -1,5 +1,6 @@
 GOOSE ?= .toolchain/goose/build/goose
 SANITIZER_CC ?= clang
+BENCH_ITERATIONS ?= 30
 .PHONY: setup format check test property sanitize bench
 setup:
 	./scripts/setup-goose.sh
@@ -11,6 +12,8 @@ check:
 	$(GOOSE) check tests/boundaries.goose
 	$(GOOSE) check tests/editor.goose
 	$(GOOSE) check tests/driver.goose
+	$(GOOSE) check examples/dependency.goose
+	$(GOOSE) check bench/edit.goose
 	git diff --check
 test:
 	mkdir -p .build
@@ -41,4 +44,4 @@ sanitize:
 bench:
 	mkdir -p .build
 	$(GOOSE) build bench/edit.goose -O2 -o .build/bench
-	python3 bench/measure.py --goose "$(GOOSE)" --runner .build/bench --output .build/benchmark.json
+	python3 bench/measure.py --goose "$(GOOSE)" --runner .build/bench --iterations $(BENCH_ITERATIONS) --output .build/benchmark.json
