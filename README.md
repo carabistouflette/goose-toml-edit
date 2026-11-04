@@ -52,3 +52,9 @@ Run `make setup` for the pinned compiler, then `make format check test property`
 `make sanitize SANITIZER_CC=gcc` and `SANITIZER_CC=clang` instrument generated C,
 including the Goose runtime; test integration and source checks also run in CI.
 There are no releases or stability promises yet.
+
+Consumer convenience overloads of global `str`/`copy` must not change editor
+validation or returned ownership. The editor constructs diagnostics, replacement
+wrappers and owned output using a namespaced helper with built-in byte appends.
+`tests/overloads.goose` exercises this contract together with numeric conversion
+and index-growth overloads covered by the pinned parser fix.

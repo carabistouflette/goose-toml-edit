@@ -59,3 +59,35 @@ not replace a declared table with an inline value.
 Full-call benchmark samples and compiler/platform/binary/source provenance are
 in [the benchmark record](../bench/results/2026-11-04/README.md). No timing gate,
 competing-library ranking or universal throughput claim is made.
+
+## Consumer-overload hardening follow-up (release gated)
+
+The immutable parser/ownership fix approved by the TOML primary is
+`c32c7dab44883f8fb5a5a984bf6f3c4c49119d79`. This follow-up tests that exact
+snapshot on a feature branch. It is not approval of a whole-library alpha,
+the outstanding numeric-writer changes, or a new Honk pin. Honk's merge remains
+held until the primary delivers its final approved post-release/source-merge SHA.
+The editor's parser and quoted-key helper coupling is specific to a reviewed pin.
+
+With that parser fix present, a public consumer defining a builder `copy`
+overload still caused the original editor to return an empty successful edit.
+The dedicated regression failed its exact-output assertion before the editor
+fix. All editor-owned diagnostics, error/output copies and replacement wrapper
+construction now use built-in byte appends through `toml_edit::owned`.
+
+The regression root defines string, copying, numeric conversion, integer
+formatting and index-sizing overloads. It checks exact source/output preservation,
+malformed source and fragment rejection, error positions, UTF-8 and size bounds,
+unsupported paths, aliasing, independent ownership and rehashing. It is wired
+into interpreted, optimized, debug/no-BCE and generated-C sanitizer targets.
+Final release measurements and dependency promotion wait for the approved pin.
+
+Scoped follow-up evidence: `make format check test property` passed; overload
+regressions passed interpreted, optimized and debug/no-BCE execution. Full GCC
+and Clang ASan/UBSan targets passed, including overload/boundary/smoke tests and
+207 oracle calls per toolchain with leak detection enabled. Two independent
+reviewers found no remaining blocker in this scoped change, verified all vendor
+bytes against the exact approved parser commit, and independently reran the
+consumer regressions. One reviewer also repeated3,032 scanner/parser parity
+cases successfully. This evidence does not clear the outstanding upstream
+writer/alpha/source merge or Honk release gates.
