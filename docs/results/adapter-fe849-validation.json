@@ -1,0 +1,113 @@
+{
+  "canonical_pin": "fe849141405009e36e1cce6eb479b395eae18f1a",
+  "source_checkpoint": "4e56e3823b1f414eb0c4b644ecd1b0aa6f97b54c",
+  "editor_sha256": "1fa20fcb1bb3c7ad1751788ae34d6c91dd348397e8871283da6c687c222b59c1",
+  "adapter_sha256": "4516ff7e266f4fa5e6d0c4ee3db0bd3089b8c9be4cfdc932d2d6c3385bf04791",
+  "vendor_manifest_sha256": "8f14874806d739dd722d482fd2b75761760601517d946549e0faf229588a6386",
+  "vendor_files": {
+    "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+    "source/README.md": "16a6f2f1ea2aad78c6bcaa89b561e13b31b62fe6896cf57dc44718e263acbb77",
+    "source/editor.goose": "1fa20fcb1bb3c7ad1751788ae34d6c91dd348397e8871283da6c687c222b59c1",
+    "toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+    "vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+    "vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+    "writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+  },
+  "upstream_identity": {
+    "approved_successor": "fe849141405009e36e1cce6eb479b395eae18f1a",
+    "tested_head": "debe1ab0fc6a99b5db41d308fb302aa9a925bbb2",
+    "merge_tree": "e811ef19070a6224cd9fff17aacc61b409b5df37",
+    "full_head_tree_identity": false,
+    "only_head_delta": [
+      "CHANGELOG.md",
+      "README.md"
+    ],
+    "approved_docs_parent": "70fb784417798742394e15629d246d3c42a5724d",
+    "vendor_files": {
+      "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+      "source/README.md": "16a6f2f1ea2aad78c6bcaa89b561e13b31b62fe6896cf57dc44718e263acbb77",
+      "source/editor.goose": "1fa20fcb1bb3c7ad1751788ae34d6c91dd348397e8871283da6c687c222b59c1",
+      "toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+      "vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+      "vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+      "writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a"
+    },
+    "changed_vendor_files": [
+      "source/editor.goose"
+    ],
+    "a79_editor_identity": true
+  },
+  "alias_bridge": {
+    "candidate": "a79cf60ff6ba86dd887dd5749f5b312ca0ef48b4",
+    "report_sha256": "582b066f0be15edd12e4f771c6b1af7d3b3b1fd4ed813fec4e2567b182be7313",
+    "matched_runtime_test_files": [
+      "toml_edit.goose",
+      "LICENSE",
+      "GOOSE_REVISION",
+      "tests/editor.goose",
+      "tests/overloads.goose",
+      "tests/boundaries.goose",
+      "tests/driver.goose",
+      "vendor/goose-toml/LICENSE",
+      "vendor/goose-toml/document.goose",
+      "vendor/goose-toml/source/README.md",
+      "vendor/goose-toml/source/editor.goose",
+      "vendor/goose-toml/toml.goose",
+      "vendor/goose-toml/vendor/LICENSE",
+      "vendor/goose-toml/vendor/README.md",
+      "vendor/goose-toml/vendor/text.goose",
+      "vendor/goose-toml/writer.goose"
+    ],
+    "result": "exact runtime/core/license/compiler-pin/direct-test file identity; old intentional overlay manifest is NOT adopted"
+  },
+  "fresh_standard": "format/check/test/property PASS;494 property calls plus JIT/O2/debug direct suites and12 Python unittest methods",
+  "differential": {
+    "reference_revision": "cedb2c3c98affbeb45bd34bc7a6618f5a9b75ad0",
+    "reference_binary_sha256": "ce153a8971ad5a32dd1811d29e49c338d970b98d61d96428c98f9f8edd77a884",
+    "command": "python3 scripts/property-test.py --runner .build/alpha3-driver --reference-runner .build/consolidation-legacy-driver --cases 5000",
+    "result_line": "Passed 5134 public editor calls; 5000 generated cases, seed 20261104; Python tomllib oracle",
+    "log_sha256": "e45f97bc7618966d35abb3b5cfbcf5846cc404234137e72483ed20b280e1a1df",
+    "candidate_binary_sha256": "e16cd5fc6b79c59b84fc895e18a39e5efaf95009dbd25936dcdbeb038972cc71"
+  },
+  "sanitizers": {
+    "gcc": {
+      "result": "PASS",
+      "property_calls": 234,
+      "direct_suites": [
+        "aliases/retained-errors",
+        "consumer-overloads",
+        "boundaries"
+      ],
+      "log_sha256": "ffac0ee9ac6dcbee45a224da90725510e5a3594cf007fb66e05ac65666e83938"
+    },
+    "clang": {
+      "result": "PASS",
+      "property_calls": 234,
+      "direct_suites": [
+        "aliases/retained-errors",
+        "consumer-overloads",
+        "boundaries"
+      ],
+      "log_sha256": "d2e35da6375cc3b0eb61d6aa4a2c0c9364f314624f19eeb0a7b9a30c1fd2bdc4"
+    }
+  },
+  "consumer_acceptance": "pending; exclusive Honk owner must accept exact published wrappercandidate before later companion prerelease",
+  "timings": "No new campaign; qualified upstream measurements linked in validation documentation",
+  "clean_export": "check/property PASS;12 offline Python methods, source import roots and494 property calls without sibling dependencies",
+  "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "compiler_sha256": "d6992f984453e28b1e9fc2540236063c0c9db67634a99b57a9a46ea58704c313",
+  "independent_reviews": "Two scoped vendor/API/provenance reviewers found no remaining blocker; both independently matched all9 public canonical Git blobs. Historical evidence and upstream docs-parent bridge are explicit; no duplicate engine review.",
+  "historical_release_replay": {
+    "mode": "offline",
+    "result": "PASS under python -O with currentcheckout pinnedfe849",
+    "verified_old_release": "v0.1.0",
+    "old_archive_sha256": "0eed952e8623a7f9d65525b9cda40217a991067b5b35301a91bc11e89aaa5f2d",
+    "note": "Minimal bundle reconstructed from retained earlier release observations; NOT a fresh GitHub observation."
+  },
+  "runtime_bridge_note": "Existing a79 alias proof matched16 runtime/core/license/compiler-pin/direct-test files. The original intentionally mismatched overlay manifest is not represented as a valid released snapshot. This real pinned snapshot received fresh checks.",
+  "upstream_release": "https://github.com/carabistouflette/goose-toml/releases/tag/v0.1.0-alpha.3"
+}

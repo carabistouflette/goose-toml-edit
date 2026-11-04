@@ -26,8 +26,8 @@ replacing the caller's output. Dependency updates require the complete
 validation suite.
 
 The immutable canonical pin is
-[`de7dfe092f6d72811417355044e5d024d5600613`](https://github.com/carabistouflette/goose-toml/commit/de7dfe092f6d72811417355044e5d024d5600613),
-published as upstream `v0.1.0-alpha.2`. The compatibility profile is absent from
+[`fe849141405009e36e1cce6eb479b395eae18f1a`](https://github.com/carabistouflette/goose-toml/commit/fe849141405009e36e1cce6eb479b395eae18f1a),
+published as upstream `v0.1.0-alpha.3`. The compatibility profile is absent from
 upstream `v0.1.0-alpha.1`; use the recorded full pin rather than a moving branch.
 
 `set(source, decoded_path, raw_value, out)` replaces a complete assignment or
