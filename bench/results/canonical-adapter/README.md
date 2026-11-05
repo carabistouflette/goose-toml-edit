@@ -1,5 +1,8 @@
 # Canonical adapter paired timings
 
+Historical implementation and measurements. See the [current measurement guide](../../README.md) for the released alpha.3 engine, checked source bridge and sample dispersion.
+The structural fresh-Document description below applies to de7dfe0; fe849 reuses terminal parser storage. The old percentages are not current-engine measurements.
+
 Complete public calls compared clean legacy `cedb2c3` with the canonical adapter at approved pin `de7dfe092f6d72811417355044e5d024d5600613`. Both binaries were freshly built with the same pinned Goose compiler and `--cc cc -O2`; source/binary/compiler/reproducer hashes stayed unchanged. Both candidates were clean when measured.
 
 Each series has nine shuffled rounds, alternating runner order per case, six fixtures, two runners and 108 checked samples. Process startup and fixture construction are outside the runner clock; parsing, validation, allocation and output replacement remain inside. CPU affinity was 4 on a shared host; there is no exclusive-isolation or universal-throughput claim.

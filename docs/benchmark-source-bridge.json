@@ -1,0 +1,49 @@
+{
+  "task": "GL-DOCSTOMLEDIT-01",
+  "audited_public_source": "7ae73b9b6463ffff96b596687d7637047d81c5cb",
+  "released_wrapper": "f8d1b1664a86b768a6f1375636d9b2c3a440aa31",
+  "canonical_pin": "fe849141405009e36e1cce6eb479b395eae18f1a",
+  "measured_overlay_base": "ae32f13d69b69c9604a44d7acd71d2f966daef35",
+  "measured_engine_checkpoint": "a79cf60ff6ba86dd887dd5749f5b312ca0ef48b4",
+  "overlay_note": "The measured ae32 export intentionally replaced only editor.goose, so its original manifest was not a released/valid vendor graph. The listed compiled inputs/harness/compiler pin match released f8d1 and audited main; current vendor manifest is verified separately.",
+  "unchanged_sha256": {
+    "toml_edit.goose": "4516ff7e266f4fa5e6d0c4ee3db0bd3089b8c9be4cfdc932d2d6c3385bf04791",
+    "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+    "bench/edit.goose": "4cae70b7c1486cc5f88cdab52f8cf267a6970cbe8a72ff52f802aaada62a75f6",
+    "vendor/goose-toml/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "vendor/goose-toml/document.goose": "b0c766e29e572dd6398e203ef3c5091d02d09d2e49c015d7028e5068883aad5b",
+    "vendor/goose-toml/toml.goose": "806fd1ea11d48da77b62dfdba6f6e33d1a6e720c448cfddd486b7d4096a15b47",
+    "vendor/goose-toml/writer.goose": "8f5f1e2862caa4fa557c5f31d5a42ed5731ab7bd72a683d6a96518597a111d2a",
+    "vendor/goose-toml/vendor/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "vendor/goose-toml/vendor/README.md": "782a7738d022eb0ab0bdef10373c2c3728422a648737c58d5f00eec8dca179b8",
+    "vendor/goose-toml/vendor/text.goose": "9d26025ab31b8c9590029e6fe8a38e3df097164c76a080a2e10c96ddb48a141d",
+    "vendor/goose-toml/source/README.md": "16a6f2f1ea2aad78c6bcaa89b561e13b31b62fe6896cf57dc44718e263acbb77",
+    "vendor/goose-toml/source/editor.goose": "1fa20fcb1bb3c7ad1751788ae34d6c91dd348397e8871283da6c687c222b59c1"
+  },
+  "released_vendor_manifest_sha256": "8f14874806d739dd722d482fd2b75761760601517d946549e0faf229588a6386",
+  "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "measured_compiler_sha256": "3cad45a18356bf97f4732f1da2012252afd77a652932ddb9c91c5551c04904be",
+  "build_flags": [
+    "--cc",
+    "gcc",
+    "-O2"
+  ],
+  "evidence": {
+    "public-batched-paired.json": {
+      "url": "https://github.com/carabistouflette/goose-toml/blob/fe849141405009e36e1cce6eb479b395eae18f1a/source/tests/results/document-reuse/public-batched-paired.json",
+      "published_bytes_sha256": "d7aba3c2261ec9982e888ffd7b24f1091683e005a4da54832ade4cc274df7366",
+      "original_artifact_sha256": "02f41cf0139cf28b4a63bd281227f591120ea1d453d55229d9367eb963856a87"
+    },
+    "public-batched-repeat.json": {
+      "url": "https://github.com/carabistouflette/goose-toml/blob/fe849141405009e36e1cce6eb479b395eae18f1a/source/tests/results/document-reuse/public-batched-repeat.json",
+      "published_bytes_sha256": "2c57b9016c86a061bf99dd804f16d033a37afba973f207dd42dc7ed529c5bb24",
+      "original_artifact_sha256": "0e4fdadf2ee4914e20b7db4529807c0ab934317b6fd42a59372bcfa9be343565"
+    },
+    "public-batched-control.json": {
+      "url": "https://github.com/carabistouflette/goose-toml/blob/fe849141405009e36e1cce6eb479b395eae18f1a/source/tests/results/document-reuse/public-batched-control.json",
+      "published_bytes_sha256": "9cc54d7ef809bf9d73a4bf2dbfb86c8f8189136ddf4064638ed13012ffa9b545",
+      "original_artifact_sha256": "3ae2ef5f584186da2a8ad71a2bc2378e7d487150a23f30ee6e29ff645c5fe8ef"
+    }
+  },
+  "rerun": "Not needed: measured compiled runtime, compiler pin and fixture harness exactly match released/current source. No claim that old overlay metadata was a valid released snapshot or that host/dependency/build variation disappears."
+}

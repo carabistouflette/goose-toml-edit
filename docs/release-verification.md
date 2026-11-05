@@ -1,13 +1,17 @@
 # Release verification
 
+This guide describes current main. The total network deadline was added after
+v0.1.1; the verifier shipped in that tag has no `--network-deadline` option. A
+current-main verifier can still check the immutable v0.1.1 release.
+
 Run the read-only verifier from a checkout containing the release and trusted
 tested-head Git objects. It uses Python's standard library and Git, performs no
 extraction, and changes no tags, refs, source files or dependencies.
 
 ```sh
-python3 scripts/verify-release.py --tag v0.1.0 \
-  --expected-commit ae32f13d69b69c9604a44d7acd71d2f966daef35 \
-  --tested-head b9b6ab1b8d9defb9c296891d57311a2162ebddb7 \
+python3 scripts/verify-release.py --tag v0.1.1 \
+  --expected-commit f8d1b1664a86b768a6f1375636d9b2c3a440aa31 \
+  --tested-head 44c99adbe3659877527fe84022db9481262412f2 \
   > /tmp/release-verification.json
 ```
 
@@ -31,20 +35,13 @@ defaults to 120 seconds and accepts finite positive values up to 3,600 seconds.
 The existing 30-second per-request inactivity timeout remains an additional
 limit; progressing slow responses cannot reset the total budget.
 
-One isolated Python worker performs all network requests. The budget starts
-before process launch, and elapsed time is checked again before accepting its
-completed results. The parent accepts bounded metadata/archive files only after
-a successful worker exit. A private temporary directory carries those results;
-worker standard streams are disconnected, and temporary files are removed on
-normal success, failure and interruption. Python optimization mode is preserved
-in the isolated worker. No process-global alarm or socket defaults are changed.
-
-Live supervision runs on the main thread. During the narrow `Popen` launch
-window it temporarily defers SIGINT, so Ctrl-C cannot discard ownership after
-the OS child exists but before its handle is returned. Any pending interrupt is
-replayed to the previous handler after owned-worker cleanup, and that handler
-is restored on every path. An initially ignored SIGINT remains ignored. No
-temporary handler remains installed during normal downloads or validation.
+One isolated worker performs all network requests and returns bounded files in
+private temporary storage. The parent accepts results only after successful
+worker completion within the budget. Live supervision requires the main thread;
+it preserves ownership across Ctrl-C during launch, restores the previous SIGINT
+handler and leaves an ignored SIGINT ignored. Normal completion, errors and
+interruption clean up the owned worker and temporary files. No process-global
+alarm or socket defaults are changed.
 
 On deadline expiry or interruption, the parent kills its owned worker and waits
 up to a separate two-second cleanup allowance. If termination/reaping cannot be
@@ -79,7 +76,8 @@ file, 8,192 exposed tar entries, 1,024 characters per path and 1 MiB per metadat
 response and combined metadata bundle. Duplicate JSON keys and malformed records fail closed.
 These are verifier limits, separate from the editor's runtime input limits.
 
-Only successful verification emits JSON to stdout. Failures return nonzero and
+Only successful verification emits JSON to stdout. A handled Ctrl-C normally
+returns 130; cleanup failures remain verification errors. Other failures return nonzero and
 write a diagnostic to stderr, including under `python3 -O`. The result records
 the metadata mode, metadata/archive SHA-256, anchors, tree, compiler revision
 and verified vendor library identities/file hashes. Historical releases are checked against their

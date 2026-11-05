@@ -1,5 +1,7 @@
 # Initial full-call benchmark
 
+Historical implementation and measurements. See the [current measurement guide](../../README.md) for the released alpha.3 engine, checked source bridge and sample dispersion.
+
 [Raw samples and provenance](inspection.json) describe seven randomized rounds
 of30 warmed calls per workload, seed20261104, CPU0, on a shared Linux x86-64 host.
 The source SHA identifies the editor/tests and harness; the dirty flag reflects
