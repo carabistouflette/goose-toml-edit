@@ -19,8 +19,7 @@ python3 scripts/property-test.py --runner .build/consolidation-legacy-driver \
   --canonical-oracle /absolute/path/to/isolated/source/.build/oracle --cases 5000
 ```
 
-The optional canonical runner uses the source owner's LS/LR tab-separated hex
-protocol. Every call compares complete results and rejects crashes, stderr and
+The optional source-editor oracle uses the LS/LR tab-separated hex protocol. Every call compares complete results and rejects crashes, stderr and
 failure output. Binary hashes are checked before and after the campaign; retain
 the separately verified build provenance to associate binaries with commits.
 Checkpoint evidence is recorded in `docs/results/canonical-5cca023-parity.json`.
