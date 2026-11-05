@@ -18,11 +18,45 @@ tool does not silently fetch or advance refs. A shallow checkout must contain
 both full commit IDs. Git replacement refs are disabled for all object queries.
 
 Live mode reads public GitHub release/tag metadata and the tag archive over
-direct HTTPS, with proxies disabled, redirects rejected and a 30-second timeout per request. This is not
-an overall wall-clock deadline. No credentials are requested or sent by the
-tool. GitHub's anonymous API rate limits apply. Lightweight and annotated tags
+direct HTTPS, with proxies disabled and redirects rejected. No credentials are
+requested or sent by the tool. GitHub's anonymous API rate limits apply. Lightweight and annotated tags
 are supported, with annotated chains limited to eight objects. Releases must be
 nondraft prereleases; `--stable` instead requires a stable nondraft release.
+
+## Total live-download deadline
+
+`--network-deadline SECONDS` sets one monotonic budget for the entire live
+download phase: release metadata, tag/annotated-tag metadata and archive. It
+defaults to 120 seconds and accepts finite positive values up to 3,600 seconds.
+The existing 30-second per-request inactivity timeout remains an additional
+limit; progressing slow responses cannot reset the total budget.
+
+One isolated Python worker performs all network requests. The budget starts
+before process launch, and elapsed time is checked again before accepting its
+completed results. The parent accepts bounded metadata/archive files only after
+a successful worker exit. A private temporary directory carries those results;
+worker standard streams are disconnected, and temporary files are removed on
+normal success, failure and interruption. Python optimization mode is preserved
+in the isolated worker. No process-global alarm or socket defaults are changed.
+
+Live supervision runs on the main thread. During the narrow `Popen` launch
+window it temporarily defers SIGINT, so Ctrl-C cannot discard ownership after
+the OS child exists but before its handle is returned. Any pending interrupt is
+replayed to the previous handler after owned-worker cleanup, and that handler
+is restored on every path. An initially ignored SIGINT remains ignored. No
+temporary handler remains installed during normal downloads or validation.
+
+On deadline expiry or interruption, the parent kills its owned worker and waits
+up to a separate two-second cleanup allowance. If termination/reaping cannot be
+confirmed within that allowance, verification fails with an explicit diagnostic;
+it does not claim the worker was reaped. Process creation, OS scheduling,
+filesystem cleanup and termination can add wall-clock overhead or stall under
+abnormal OS conditions. This is not a hard-real-time guarantee.
+
+The deadline covers downloads, not subsequent local Git queries or bounded
+archive validation. Offline verification starts no worker, performs no network
+access and is unaffected by the network budget. Its report schema stays the
+same; live reports additionally record `network_deadline_seconds`.
 
 ## What passes
 
@@ -42,7 +76,7 @@ nondraft prereleases; `--stable` instead requires a stable nondraft release.
 
 Limits are 32 MiB compressed, 128 MiB expanded before tar parsing, 16 MiB per
 file, 8,192 exposed tar entries, 1,024 characters per path and 1 MiB per metadata
-response/offline bundle. Duplicate JSON keys and malformed records fail closed.
+response and combined metadata bundle. Duplicate JSON keys and malformed records fail closed.
 These are verifier limits, separate from the editor's runtime input limits.
 
 Only successful verification emits JSON to stdout. Failures return nonzero and
@@ -68,7 +102,7 @@ with the committed manifest; upstream Git-object publication audits remain a
 separate responsibility. License checks verify presence and bytes, not legal
 interpretation.
 
-`make check` and the early CI step run hermetic fixtures without network access.
+`make check` and the early CI step run hermetic fixtures without external network access.
 They cover valid lightweight/annotated tags, wrong identities, replacement refs,
 modified/missing/extra files, executable modes, unsafe/PAX/duplicate paths,
 mixed roots, links/sparse/special entries, decompression limits, truncated gzip,
@@ -78,3 +112,11 @@ optimized-Python CLI failure. Run them directly with:
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py'
 ```
+
+Deadline regressions use loopback HTTP servers and owned worker processes for
+stalled headers, continuously progressing bodies, stalled archives and a shared
+multi-request budget. A blocked-DNS fixture makes no actual DNS request. Other
+cases cover startup accounting, late success, interruption, partial/oversized
+results, bounded error messages, temporary cleanup, POSIX child reaping,
+unconfirmed cleanup, invalid budgets, optimization and offline bypass. They
+measure correctness deadlines with scheduling tolerance, not performance claims.
