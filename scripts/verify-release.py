@@ -271,15 +271,20 @@ def _defer_launch_interrupt(cleanup):
         nonlocal interrupted
         interrupted = True
     signal.signal(signal.SIGINT, defer)
+    cleaned = False
     try:
         yield
     finally:
         try:
             if interrupted:
+                cleaned = True
                 cleanup()
         finally:
             signal.signal(signal.SIGINT, previous)
         if interrupted:
+            # The deferred handler may run during restoration, after the first check.
+            if not cleaned:
+                cleanup()
             signal.raise_signal(signal.SIGINT)
             raise KeyboardInterrupt
 

@@ -223,6 +223,27 @@ class NetworkDeadline(unittest.TestCase):
         finally:
             signal.signal(signal.SIGINT, previous)
 
+    def test_interrupt_during_handler_restoration_cleans_before_replay(self):
+        original = signal.signal
+        previous = signal.getsignal(signal.SIGINT)
+        events = []
+        def handler(signum, frame):
+            events.append('handler')
+        def restore_edge(signum, replacement):
+            if replacement is handler:
+                signal.raise_signal(signal.SIGINT)
+            return original(signum, replacement)
+        try:
+            original(signal.SIGINT, handler)
+            with patch.object(verifier.signal, 'signal', side_effect=restore_edge):
+                with self.assertRaises(KeyboardInterrupt):
+                    with verifier._defer_launch_interrupt(lambda: events.append('cleanup')):
+                        pass
+            self.assertEqual(events, ['cleanup', 'handler'])
+            self.assertIs(signal.getsignal(signal.SIGINT), handler)
+        finally:
+            original(signal.SIGINT, previous)
+
     def test_invalid_deadline_values(self):
         for value in ('0', '-1', 'nan', 'inf', '3601', 'word'):
             with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
