@@ -48,7 +48,9 @@ suffix comments, newlines and extra statements are rejected. Comments/newlines
 inside an array or string value remain valid TOML.
 
 `remove(source, decoded_path, out)` removes declarations in that subtree,
-including table headers and their values. A missing key is a successful no-op.
+including table headers and their values. After input validation, an absent
+path prefix succeeds with an owned copy. Traversal through a scalar, array or
+inline table fails even when the requested child is missing.
 A whole array of tables can be removed, but individual elements cannot be
 selected. Removing the last dotted child may also remove its implicit parent
 semantically; no explicit empty table is inserted.

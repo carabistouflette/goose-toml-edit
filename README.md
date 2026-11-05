@@ -33,8 +33,9 @@ covers Linux; sanitizer targets require GCC/Clang.
   subtree. A missing key succeeds with an owned copy of the original source.
 
 Both return an owned error string, empty on success, and replace `out`.
-Failure clears `out`; inputs are unchanged. Inputs may borrow from `out` during
-the call. Path components are decoded keys: a dot inside one component is literal.
+Failure clears `out`. Inputs may borrow from `out` during the call; replacing
+output can then overwrite that shared storage. Path components are decoded keys:
+a dot inside one component is literal.
 See the [API and import guide](docs/api.md) for a complete example and contracts.
 
 Source/output are limited to 1 MiB, paths to 64 components and 1 MiB combined
