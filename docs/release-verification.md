@@ -76,8 +76,8 @@ file, 8,192 exposed tar entries, 1,024 characters per path and 1 MiB per metadat
 response and combined metadata bundle. Duplicate JSON keys and malformed records fail closed.
 These are verifier limits, separate from the editor's runtime input limits.
 
-Only successful verification emits JSON to stdout. Ctrl-C returns 130; other
-failures return nonzero and
+Only successful verification emits JSON to stdout. A handled Ctrl-C normally
+returns 130; cleanup failures remain verification errors. Other failures return nonzero and
 write a diagnostic to stderr, including under `python3 -O`. The result records
 the metadata mode, metadata/archive SHA-256, anchors, tree, compiler revision
 and verified vendor library identities/file hashes. Historical releases are checked against their
