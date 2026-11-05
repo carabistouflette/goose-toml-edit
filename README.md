@@ -64,6 +64,8 @@ including the Goose runtime; test integration and source checks also run in CI.
 Experimental releases carry no API stability promise.
 Use the [release verifier](docs/release-verification.md) to check a public tag
 and archive against an explicit expected commit and trusted tested head.
+The [final v0.1.1 receipt](docs/results/release-v0.1.1.md) links completed release
+and Honk acceptance evidence alongside the historical candidate validation.
 
 Consumer convenience overloads of global `str`/`copy` must not change editor
 validation or returned ownership. The canonical engine constructs owned results;
